@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="description" content="MEXPRESS is a web tool for the visualization of the TCGA expression, DNA methylation and clinical data, as well as the relationships between them.">
+        <!-- START facebook open graph meta tags -->
+        <meta property="og:title" content="MEXPRESS"/>
+        <meta property="og:url" content="http://mexpress.be"/>
+        <meta property="og:site_name" content="MEXPRESS"/>
+        <meta property="og:type" content="website"/>
+        <meta property="og:image" content="http://mexpress.be/images/plot.png"/>
+        <meta property="og:description" content="MEXPRESS is a web tool for the visualization of the TCGA expression, DNA methylation and clinical data, as well as the relationships between them."/>
+        <!-- END facebook open graph meta tags -->
+        <title>mexpress</title>
+        <link rel="icon" type="image/png" href="images/m_icon.png">
+        <link rel="stylesheet" type="text/css" href="css/global.css">
+        <link rel="stylesheet" type="text/css" href="css/about.css">
+        <link href='http://fonts.googleapis.com/css?family=Dosis:800|Open+Sans:600' rel='stylesheet' type='text/css'>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            ga('create', 'UA-54184541-2', 'auto');
+            ga('send', 'pageview');
+        </script>
+        <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1 class="mainTitle">m<span class="letterE">e</span>x<span class="letterP">p</span><span class="letterR">r</span>ess</h1>
+                <p class="subTitle">
+                    a methylation &amp; expression visualization tool
+                </p>
+                <a href="/"><img class="logo" src="images/m.png"/></a>
+            </header>
+            <div class="content">
+                <section>
+                    <h1>What?</h1>
+                    <p>
+                        <span class="mexpress">MEXPRESS</span> is a data visualization tool designed for the easy visualization of <a href="https://tcga-data.nci.nih.gov/tcga/" target="_blank" title="This link will take you to the TCGA website.">TCGA</a> expression, DNA methylation and clinical data, as well as the relationships between them.
+                    </p>
+                </section>
+                <section>
+                    <h1>How?</h1>
+                    <p>
+                        Easy! Just pick a gene and cancer type you are interested in and MEXPRESS will show you the corresponding expression, DNA methylation and clinical data, as well as the relationship between these data sets.
+                    </p>
+                    <h2>Getting started</h2>
+                    <p>
+                        This is the MEXPRESS start screen:
+                    </p>
+                </section>
+                <figure>
+                    <img alt="MEXPRESS start screen" src="images/startScreen.png"/>
+                </figure>
+                <section>
+                    <h2>Selecting data</h2>
+                    <p>
+                        On the left side you will notice the text input field where you can enter a gene name (both HGNC symbols and Ensembl gene IDs are recognized) as well as the list of cancer types you can choose from.
+                    </p>
+                    <p>
+                        Let's say you are interested in the expression and methylation data of the GSTP1 gene in prostate cancer.
+                        Simply enter GSTP1 in the text field and select prostate adenocarcinoma (PRAD).
+                    </p>
+                </section>
+                <figure>
+                    <img alt="ready to plot" src="images/readyToPlot.png"/>
+                </figure>
+                <section>
+                    <h2>Creating the plot</h2>
+                    <p>
+                        All that's left to do after selecting a gene and cancer type is clicking the <span class="blue">plot</span> button and the data you selected will be visualised.
+                    </p>
+                    <p>
+                        Hovering over one of the methylation line plots will bring up the ID of the corresponding probe.
+                        Click on a methylation line plot to fix the probe ID on the figure.
+                        Click it again to remove the probe ID (or click another methylation line plot).
+                        If you'd like to download the figure you just created, simply click the <span class="blue">png</span> or <span class="blue">svg</span> button in the upper right corner (depending on which image format you want).
+                    </p>
+                </section>
+                <figure>
+                    <img alt="final MEXPRESS plot" src="images/plot.png"/>
+                </figure>
+                <section>
+                    <h2>About the plot</h2>
+                    <p>
+                        At the top of the figure you find the HGNC gene symbol, the Ensembl gene ID and the genomic location of GSTP1.
+                        The gene symbol link will open the <a href="http://www.genecards.org" target="_blank">GeneCards</a> page about GSTP1 in a new tab or window.
+                    </p>
+                    <p>
+                        Next up is the legend of the plot, which adapts to the cancer type you selected, and below the legend is the actual plot.
+                        From top to bottom you will see the clinical data, the expression values and the methylation data.
+                        The samples are listed horizontally, while the different types of data are arranged vertically.
+                        Let's take a detailed look at each part.
+                    </p>
+                    <h3>expression data</h3>
+                    <figure>
+                        <img alt="expression data" src="images/expression.png"/>
+                    </figure>
+                    <p>
+                        The height of the orange line represents the logarithm of the level 3 RNA-sequencing data in TCGA (normalized RNASeqV2 values per gene).
+                        The expression data forms the basis of the whole plot, because the samples are ranked based on their expression value for the gene we selected with the highest expression on the left side and the lowest on the right.
+                    </p>
+                    <h3>methylation data</h3>
+                    <figure>
+                        <img alt="methylation data" src="images/methylation.png"/>
+                    </figure>
+                    <p>
+                        On the left hand side, you see the GSTP1 gene, two CpG islands (in green) and the different GSTP1 transcripts.
+                        The arrow on the gene indicates its direction.
+                        When&#8211;like in this example&#8211;the arrow points down, the gene is located on the &#43; strand. If it points up, the gene lies on the &#45; strand.
+                    </p>
+                    <p>
+                        On the right hand side, you see all the Infinium 450k probes that are linked to GSTP1.
+                        The height of the blue lines indicates the beta value for a probe. When there is no data available for a certain probe, no line is plotted and instead it simply says "no data".
+                        Gaps in the line indicate that there was no methylation data for one or more samples.
+                    </p>
+                    <p>
+                        Just as for the expression data, the samples are ranked along the x axis (they were ordered based on their GSTP1 expression value).
+                        Thin blue lines connect the probes to their respective genomic locations.
+                    </p>
+                    <p>
+                        The values on the far right represent the Pearson product&#45;moment correlation coefficient between the methylation values for a probe and the expression values.
+                        For GSTP1 you can see that there are quite a few probes with a strong negative correlation between methylation and expression, indicating that GSTP1 expression might be controlled through DNA methylation (which has already been described, see <a href="http://www.nature.com/onc/journal/v18/n6/full/1202415a.html" target="_blank">Millar <em>et al.</em>, 1999</a>).
+                        To make it easier to see which probes have a higher correlation coefficient, these values are marked with a darker text color.
+                    </p>
+                    <h3>clinical data</h3>
+                    <figure>
+                        <img alt="clinical data" src="images/clinical.png"/>
+                    </figure>
+                    <p>
+                        For every cancer type, the most relevant clinical parameters have been extracted from TCGA.
+                        In order to represent all the data as barplots, some clinical parameters have been converted to numeric values.
+                        One example is the pathologic stage (not shown in this example) where values such as <span class="value">Stage IIA</span> and <span class="value">Stage IV</span> were converted to the values <span class="value">2</span> and <span class="value">4</span> respectively.
+                    </p>
+                    <p>
+                        The names of the different clinical parameters are listed on the left and the <a href="http://en.wikipedia.org/wiki/Pearson_correlation_coefficient" target="_blank">Pearson product-moment correlation values</a> or the p values for <a href="http://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test" target="_blank">Wilcoxon rank-sum test</a> can be found on the right.
+                        Whenever a clinical parameter contains only two levels (e.g. male or female) a p value is calculated instead of a correlation coefficient.
+                        This p value indicates the difference in expression between the two groups for this parameter.
+                        For the sample type parameter, the expression is always compared between the normal and tumor samples.
+                    </p>
+                    <p>
+                        The sample type annotation can be found in the legend of the plot.
+                        In this case the dark blue samples are normal whereas the light blue bars indicate tumor samples.
+                        Again, the findings from <a href="http://www.nature.com/onc/journal/v18/n6/full/1202415a.html" target="_blank">Millar <em>et al.</em> (1999)</a> are confirmed, because it is clear that the normal samples tend to have a higher GSTP1 expression than the tumor samples.
+                    </p>
+                    <p>
+                        As described earlier, the samples are sorted based on their expression value by default.
+                        By clicking on the name of the annotation parameter you're interested in, you can rearrange the samples by the annotation you just selected.
+                        Besides the rearrangement of the samples, all correlation and p values will be recalculated.
+                </section>
+                <section>
+                    <a class="startButton" href="/">Let's get started!</a>
+                </section>
+            </div>
+            <footer>
+                <p>
+                    <em>By downloading, analyzing, and/or utilizing TCGA data for publication purposes, the user accepts the data use restrictions and requirements as outlined in the TCGA Publication Guidelines.
+                    See <a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines" target="_blank">http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines</a> for additional information.</em>
+                </p>
+                <p>
+                    Developed by Alexander Koch &#64; <a href="http://www.biobix.be" target="_blank">BIOBIX</a> &#8211; Ghent University
+                </p>
+                <p>
+                    Contact: <a href="mailto:alexander.koch@ugent.be?Subject=MEXPRESS">alexander.koch@ugent.be</a>
+                </p>
+                <p>
+                    <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2015
+                </p>
+            </footer>
+        </div>
+    </body>
+</html>    

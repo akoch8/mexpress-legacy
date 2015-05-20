@@ -1,0 +1,398 @@
+.container {
+    width: 100%;
+    min-height: 100%;
+    margin: 0 auto;
+}
+
+header {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    border-bottom: 0.5em solid #B0D6F7;
+    background: #4999DE;
+}
+header img {
+    position: relative;
+    top: 16px;
+    width: 80px;
+    margin: 0 auto;
+    transition: top 0.15s;
+}
+header img:hover {
+    top: 20px;
+}
+
+.bannerContent {
+    width: 90%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.bannerTitle {
+    display: inline-block;
+    font-family: 'Open Sans', arial, helvetica, sans-serif;
+    font-size: 1.5em;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    text-shadow: 0 1px 0 #2567A1;
+    transition: text-shadow 0.2s;
+    -webkit-transition: text-shadow 0.2s;
+}
+.bannerTitle:hover {
+    color: #FFF;
+    text-shadow: 0 2px 0 #2567A1;
+}
+
+.bannerText {
+    display: inline-block;
+    position: relative;
+    bottom: 42px;
+    margin-left: 6px;
+}
+
+.separator {
+    display: inline-block;
+    vertical-align: text-bottom;
+    height: 1.6em;
+    margin-left: 16px;
+    margin-right: 16px;
+    border-left: 1px solid #FFF;
+}
+
+a.bannerLink {
+    position: relative;
+    bottom: 2px;
+    margin-right: 20px;
+    padding-left: 1px;
+    border-bottom: 1px solid #FFF;
+    font-size: 1.1em;
+    font-weight: 900;
+    color: #FFF;
+    text-decoration: none;
+}
+a.bannerLink:visited {
+    color: #FFF;
+}
+a.bannerLink:hover {
+    color: #FFF;
+}
+
+.mainContent {
+    width: 100%;
+    max-width: 1400px;
+    white-space: nowrap;
+}
+.mainContent a {
+    border-bottom: 1px solid #3A3A3A;
+    color: #3A3A3A;
+}
+.mainContent a:visited {
+    color: #3A3A3A;
+}
+
+.userInput {
+    display: inline-block;
+    vertical-align: top;
+    width: 280px;
+    padding: 120px 12px 60px 30px;
+}
+
+#userInputForm {
+    width: 100%;
+}
+
+.userInputSub {
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.sampleSelectionContainer {
+    margin: 10px 0;
+}
+
+.update {
+    font-style: italic;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.sampleSelectionList {
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 300px;
+    margin: 10px 0;
+    background: #F8F8F8;
+}
+.sampleSelectionList::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+.sampleSelectionList::-webkit-scrollbar:vertical {
+    width: 4px;
+}
+.sampleSelectionList::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    border: 0px solid #F8F8F8;
+    background: #DDD;
+}
+.sampleSelectionList:hover::-webkit-scrollbar:vertical {
+    width: 5px;
+}
+.sampleSelectionList:hover::-webkit-scrollbar-thumb {
+    background: #CCC;
+}
+
+.sampleSelectionElement {
+    padding: 6px 0 6px 10px;
+    border-bottom: 1px solid #CCC;
+    color: #AAA;
+}
+.sampleSelectionElement:last-of-type {
+    border-bottom: none;
+}
+.sampleSelectionElement:hover {
+    cursor: default;
+    background: #F2F2F2;
+}
+.sampleSelectionElement:active {
+    background: #CFCFCF;
+}
+
+.sourceName {
+    display: inline-block;
+    width: 42px;
+}
+
+.fullSourceName {
+    margin-left: 8px;
+    font-size: 12px;
+    color: #AAA;
+    font-weight: normal;
+    text-shadow: none;
+}
+
+.selectedSample .fullSourceName {
+    color: #828282;
+}
+
+.plotContainer {
+    display: inline-block;
+    min-height: 600px;
+    margin: 120px 0 40px 0;
+    padding: 0;
+    border-bottom: 4px solid #EFEFEF;
+    background: #F6F6F6;
+    background-image: url("../images/m_bw.png");
+    background-position: -40% 30%;
+    background-repeat: no-repeat;
+}
+
+.plotInfo {
+    position: relative;
+    padding-left: 10px;
+}
+
+.ensembl {
+    margin: 0 6px;
+    font-size: 0.9em;
+    color: #888;
+}
+
+.plotWindow {
+    clear: both;
+    width: 100%;
+    padding-left: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+.transparent {
+    opacity: 0.25;
+}
+
+.loadingAnimation {
+    clear: both;
+    z-index: 10;
+    display: none;
+    text-align: center;
+}
+.loadingAnimation img {
+    z-index: 20;
+    margin: 140px auto;
+}
+
+input[type="text"] {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 10px 0 0 0;
+    padding: 6px;
+    border: 1px solid rgba(0,0,0,.15);
+    outline: none;
+    box-shadow: none;
+    font-size: 1em;
+}
+input[type="text"]:hover {
+    border: 1px solid rgba(0,0,0,.25);
+}
+input[type="text"]:focus {
+    border: 1px solid #B0D6F7;
+}
+input[type="submit"].inputButton {
+    display: block;
+    width: 100%;
+    margin: 0 0 10px 0;
+    padding: 8px 16px 8px 16px;
+    outline: none;
+    border: none;
+    border-bottom: 4px solid #428BCA;
+    box-shadow: none;
+    background: none;
+    background-color: #4999DE;
+    font-size: 18px;
+    color: #FFFFFF;
+}
+input[type="submit"].inputButton:active {
+    outline: none;
+    border-top: 4px solid #428BCA;
+    border-bottom: none;
+}
+input[type="submit"].inputButton:hover {
+    cursor: pointer;
+}
+input[type="submit"].inactive {
+    pointer-events: none;
+    border-bottom: 4px solid #A7BED1;
+    background-color: #BFD1E0;
+}
+input[type="submit"].inactive:active {
+    border: none;
+    border-bottom: 4px solid #A7BED1;
+    background-color: #BFD1E0;
+}
+input[type="submit"].inactive:hover {
+    cursor: default;
+    background-color: #BFD1E0;
+}
+
+.download {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    margin-left: 20px;
+}
+
+.downloadButton {
+    visibility: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    width: 50px;
+    margin-left: 10px;
+    padding: 2px 0;
+    border-bottom: 4px solid #428BCA;
+    background-color: #4999DE;
+    font-size: 12px;
+    color: #FFF;
+    text-align: center;
+}
+
+.downloadButton:active {
+    border-top: 4px solid #428BCA;
+    border-bottom: none;
+    color: #FFF;
+}
+.downloadButton:hover {
+    cursor: pointer;
+}
+.downloadButton img {
+    position: relative;
+    top: 2px;
+    margin-bottom: -3px;
+    /* together with the top value, the negative margin ensures that the loading gif
+       is aligned with the "download" text it replaces without changing the size of the button */
+}
+
+.downloadText {
+    visibility: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+    padding: 3px 6px 3px 6px;
+    border-bottom: 4px solid #DEF0FF;
+    background: #E8F4FF;
+    white-space: normal;
+    font-size: 0.8em;
+    color: #428BCA;
+}
+
+.promoterSelectionButton {
+    display: block;
+    margin-top: 20px;
+    width: 148px;
+    padding: 2px 0;
+    border-bottom: 2px solid #ddd;
+    background-color: #eee;
+    font-size: 11px;
+    color: #aaa;
+    text-align: center;
+}
+.promoterSelectionButton:active {
+    border-top: 2px solid #ddd;
+    border-bottom: none;
+}
+.promoterSelectionButton:hover {
+    cursor: pointer;
+}
+
+.selectedSample {
+    background: #E8E8E8;
+    color: #3A3A3A;
+}
+.selectedSample:hover {
+    background: #E8E8E8;
+}
+
+.clickable:hover {
+    cursor: pointer;
+}
+
+.sampleName {
+    font-size: 9px;
+    fill: #000;
+    text-anchor: end;
+}
+
+.autocomplete-suggestions {
+    max-height: 350px;
+    margin: 0px;
+    border: 1px solid #B0D6F7;
+    border-top: none;
+    background: #FFF;
+    cursor: default;
+    text-align: left;
+    overflow: auto;
+    /* IE6 specific: */
+    _height: 350px;
+    _margin: 0;
+    _overflow-x: hidden;
+}
+
+.autocomplete-selected {
+    background: #F8F8F8;
+}
+
+.autocomplete-suggestion {
+    padding: 4px 6px;
+}
+
+.autocomplete-suggestion strong {
+    color: #4999DE;
+}
+
+footer {
+    margin: 30px;
+}

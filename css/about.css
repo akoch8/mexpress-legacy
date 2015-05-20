@@ -1,0 +1,169 @@
+body {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+header {
+    width: 100%;
+    height: 306px;
+    border-bottom: 1em solid #B0D6F7;
+    background: #4999DE;
+    text-align: center;
+}
+header img {
+    position: relative;
+    top: -4px;
+    width: 180px;
+    margin: 0 auto;
+    transition: top 0.15s;
+}
+header img:hover {
+    top: 0px;
+}
+header a {
+    border: none;
+}
+
+.mainTitle {
+    display: inline-block;
+    margin-top: 50px;
+    padding-left: 20px; /* this left padding helps to center the main title (was thrown off because of white space on the right side of the last letter) */
+    font-family: 'Open Sans', arial, helvetica, sans-serif;
+    font-size: 4em;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    text-shadow: 0 2px 0 #2567A1;
+}
+.mainTitle .letterE {
+    margin-left: -0.02em;
+    margin-right: 0.05em;
+}
+.mainTitle .letterP {
+    margin-left: 0.02em;
+    margin-right: -0.035em;
+}
+.mainTitle .letterR {
+    margin-right: -0.02em;
+}
+
+.subTitle {
+    font-family: 'Dosis', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 2em;
+    color: rgba(255,255,255,.9);
+    text-shadow: 0 2px 0 #2567A1;
+}
+
+.content {
+    width: 100%;
+    margin: 120px auto 0 auto;
+    font-size: 18px;
+    text-align: left;
+}
+
+h1, h2, h3 {
+    font-weight: 700;
+    color: #4999DE;
+}
+h1 {
+    font-size: 2.2em;
+    letter-spacing: 0.04em;
+}
+h2 {
+    margin-top: 40px;
+    font-size: 1.2em;
+    letter-spacing: 0.02em;
+}
+h3 {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-size: 1em;
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+section {
+    width: 90%;
+    max-width: 680px;
+    margin: 30px auto 30px auto;
+}
+section h1 {
+    margin-top: 50px;
+}
+
+a {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+    color: rgba(0, 0, 0, 0.7);
+}
+a:visited {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+
+figure {
+    width: 60%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+figure img {
+    width: 100%;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px 2px #F3F3F3;
+}
+
+section figure {
+    width: 100%;
+}
+section figure img {
+    margin-bottom: 0;
+    box-shadow: none;
+}
+
+.blue {
+    padding: 4px 10px 4px 10px;
+    border-bottom: 2px solid #428BCA;
+    background: #4999DE;
+    font-size: 0.8em;
+    color: #FFF;
+}
+
+.orange {
+    color: #F59322;
+}
+
+.value {
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #888;
+}
+
+a.startButton {
+    display: block;
+    width: 50%;
+    margin: 80px auto;
+    padding: 8px 16px 8px 16px;
+    border-bottom: 4px solid #428BCA;
+    background: #4999DE;
+    font-family: 'Open Sans', arial, helvetica, sans-serif;
+    font-size: 1em;
+    color: #FFFFFF;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-shadow: 0 2px 0 #2567A1;
+}
+a.startButton:visited {
+    color: #FFF;
+}
+a.startButton:active {
+    border-top: 4px solid #428BCA;
+    border-bottom: none;
+}
+
+footer {
+    width: 90%;
+    max-width: 680px;
+    margin: 30px auto;
+}

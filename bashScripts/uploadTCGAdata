@@ -1,0 +1,101 @@
+#!/bin/bash
+
+### Program fl0w
+## - find the sql files to upload the TCGA data to the database
+## - if the table already exists in the database, mysqldump that table to archive
+## - upload the new data to the database
+## - update the data information table for expression and methylation data
+
+function usage
+{
+    echo
+    echo "Usage: uploadTCGAdata -t tumorType"
+    echo
+}
+
+tumorType=
+if [ "$1" == "" ]; then
+    usage
+    exit
+fi
+while [ "$1" != "" ]; do
+    case $1 in
+        -t | --tumor )      shift
+                            tumorType=$1
+                            ;;
+        * )                 usage
+                            exit
+    esac
+    shift
+done
+
+#echo "tumor = ${tumorType}"
+
+if [ ${tumorType} == "" ]; then
+    usage
+    exit
+fi
+
+# Set the database parameters.
+database=mexpress
+user=mexpress
+pass=hcjpuf
+
+# Specify the different data types.
+dataTypes=(clinical_patient clinical_sample)
+# Check if any new expression or methylation data was downloaded.
+# We don't want to reload existing data if nothing new has been added.
+if [ -f upload_expression.txt ] && grep -q ${tumorType} upload_expression.txt; then
+    dataTypes+=(expression)
+else
+    echo "No new expression data."
+fi
+if [ -f upload_methylation.txt ] && grep -q ${tumorType} upload_methylation.txt; then
+    dataTypes+=(methylation)
+else
+    echo "No new methylation data."
+fi
+
+DATE=`date +%Y%m%d`
+HOUR=`date +%H%M%S`
+
+# Check if the different data types for the tumorType are already in the database.
+# If they are, dump them in an archive folder before uploading the new data.
+for d in ${dataTypes[@]}; do
+    if [ -f "${tumorType}"/load_"${d}"_"${tumorType}".sql ]; then
+        #echo "uploading ${d} data..."
+        if [ $(mysql -N -s -u ${user} -p${pass} -e "select count(*) from information_schema.tables where table_schema='${database}' and table_name='${d}_${tumorType}';") -eq 1 ]; then
+            # Check if there is an archive folder and create one if necessary.
+            if [ ! -d "${tumorType}"/archive ]; then
+                mkdir "${tumorType}"/archive
+            fi
+            mysqldump -u ${user} -p"${pass}" ${database} "${d}"_"${tumorType}" > "${tumorType}"/archive/"${d}"_"${tumorType}"_"${DATE}"_"${HOUR}".sql
+        fi
+        mysql -u ${user} -p"${pass}" ${database} < "${tumorType}"/load_"${d}"_"${tumorType}".sql
+    else
+        echo "Could not find ${tumorType}/load_${d}_${tumorType}.sql, moving on."
+    fi
+done
+# Loop through the data types a second time to update the data_information table (only relevant for expression and methylation data).
+# This way the tumor type will only show up on the website after both expression and methylation data have been uploaded to the database.
+for d in ${dataTypes[@]}; do
+    if [ ${d} == "expression" ] || [ ${d} == "methylation" ]; then
+        if [ -f "${tumorType}"/load_"${d}"_"${tumorType}".sql ]; then
+            #echo "updating the data_information table..."
+            # if the data_information table already exists, then archive it.
+            if [ $(mysql -N -s -u ${user} -p${pass} -e "select count(*) from information_schema.tables where table_schema='${database}' and table_name='data_information';") -eq 1 ]; then
+                # Check if there is an archive folder and create one if necessary.
+                if [ ! -d data_information_archive ]; then
+                    mkdir data_information_archive
+                fi
+                DATE=`date +%Y%m%d`
+                HOUR=`date +%H%M%S`
+                mysqldump -u ${user} -p"${pass}" ${database} data_information > data_information_archive/data_information_"${DATE}"_"${HOUR}".sql
+            fi
+            mysql -u ${user} -p"${pass}" ${database} < "${tumorType}"/update_data_information_"${d}"_"${tumorType}".sql
+        else
+            echo "Could not find ${tumorType}/update_data_information_${d}_${tumorType}.sql, moving on."
+        fi
+    fi
+done
+#echo "done!"

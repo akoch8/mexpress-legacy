@@ -1,0 +1,27 @@
+#!/bin/bash
+
+### Program fl0w
+## - extract the pam50 gene expression data from the MySQL database
+## - run the R script to calculate the brca subtype for each sample
+## - upload the subtypes to the clinical_sample_brca table (add extra column if necessary)
+
+function usage
+{
+    echo
+    echo "Usage: brcaSubtypes"
+    echo
+}
+
+if [ "$1" != "" ]; then
+    usage
+    exit
+fi
+
+# Extract the brca expression data.
+echo "SELECT * FROM expression_brca WHERE gene_name IN ('ACTR3B','ANLN','BAG1','BCL2','BIRC5','BLVRA','CCNB1','CCNE1','CDC20','CDC6','CDH3','CENPF','CEP55','CXXC5','EGFR','ERBB2','ESR1','EXO1','FGFR4','FOXA1','FOXC1','GPR160','GRB7','KIF2C','KRT14','KRT17','KRT5','MAPT','MDM2','MELK','MIA','MKI67','MLPH','MMP11','MYBL2','MYC','NAT1','NDC80','NUF2','ORC6L','PGR','PHGDH','PTTG1','RRM2','SFRP1','SLC39A6','TMEM45B','TYMS','UBE2C','UBE2T')" | mysql -u root -pphpmysql mexpressdb_tcga > tcga_rnaseqv2_data_brca_pam50.txt
+
+# Run the brcaSubtypes.R script to determine the breast cancer subtype for each sample.
+Rscript brcaSubtypes.R tcga_rnaseqv2_data_brca_pam50.txt
+
+# Load the data in the MySQL database.
+mysql -u root -pphpmysql mexpressdb_tcga < load_pam50subtypes.sql

@@ -1,0 +1,63 @@
+#!/bin/bash
+
+### Program fl0w
+## - read the file that contains the tumor types we need
+## - download the corresponding TCGA data (expression, methylation, clinical patient & sample slide)
+## - upload the data to the database
+
+# Read the different tumor types from the clinicalParameters.txt file.
+if [ -f clinicalParameters.txt ]; then
+    tumorTypes=(`awk '{ if (NR!=1) { print $1 }}' clinicalParameters.txt`)
+else
+    echo "Could not find the file clinicalParameters.txt"
+    exit 1
+fi
+
+
+echo "========================================"
+echo "= DOWNLOADING"
+echo "========================================"
+# Loop through the tumor types and download the TCGA data for each one.
+for t in ${tumorTypes[@]}; do
+    echo "${t}"
+    fullName=`awk -v tumor="$t" '{ if ($1 == tumor) { print $2 }}' clinicalParameters.txt`
+    echo "$fullName"
+    ./downloadTCGAdata.0.6 -t ${t} -f ${fullName}
+    if [ "$?" != "0" ]; then
+        echo
+        echo "ERROR: could not download all the data for ${t}"
+        echo "       moving on to the next tumor type"
+        echo
+    fi
+    echo "----------------------------------------"
+done
+
+echo "========================================"
+echo "= UPLOADING"
+echo "========================================"
+for t in ${tumorTypes[@]}; do
+    echo "${t}"
+    ./uploadTCGAdata.0.2 -t ${t}
+    if [ "$?" != "0" ]; then
+        echo
+        echo "ERROR: could not upload all the data for ${t}"
+        echo "       moving on to the next tumor type"
+        echo
+    fi
+    echo "----------------------------------------"
+done
+
+echo "========================================"
+
+if [ -f upload_expression.txt ]; then
+    rm upload_expression.txt
+fi
+if [ -f upload_methylation.txt ]; then
+    rm upload_methylation.txt
+fi
+
+updateDate=`date '+%B %-d, %Y'`
+echo "TCGA data updated on ${updateDate}"
+echo ${updateDate} > /var/www/html/mexpress/data/latest_update.txt
+
+echo "========================================"
