@@ -22,7 +22,7 @@ for t in ${tumorTypes[@]}; do
     echo "${t}"
     fullName=`awk -v tumor="$t" '{ if ($1 == tumor) { print $2 }}' clinicalParameters.txt`
     echo "$fullName"
-    ./downloadTCGAdata.0.6 -t ${t} -f ${fullName}
+    ./downloadTCGAdata -t ${t} -f ${fullName}
     if [ "$?" != "0" ]; then
         echo
         echo "ERROR: could not download all the data for ${t}"
@@ -37,7 +37,7 @@ echo "= UPLOADING"
 echo "========================================"
 for t in ${tumorTypes[@]}; do
     echo "${t}"
-    ./uploadTCGAdata.0.2 -t ${t}
+    ./uploadTCGAdata -t ${t}
     if [ "$?" != "0" ]; then
         echo
         echo "ERROR: could not upload all the data for ${t}"
