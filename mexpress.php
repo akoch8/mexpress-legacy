@@ -138,8 +138,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
         <script type="text/javascript" src="javascript/autocomplete.js"></script>
         <script type="text/javascript" src="javascript/sampleSelection.js"></script>
         <script type="text/javascript" src="javascript/downloadSvg.js"></script>
-        <!--<script type="text/javascript" src="javascript/mexpress.min.js"></script>-->
-        <script type="text/javascript" src="javascript/statistics.2.js"></script>
+        <script type="text/javascript" src="javascript/statistics.js"></script>
         <script type="text/javascript" src="javascript/methylationLinePlot.js"></script>
     </body>
 </html>    
