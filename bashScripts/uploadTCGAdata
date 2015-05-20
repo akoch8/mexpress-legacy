@@ -37,9 +37,9 @@ if [ ${tumorType} == "" ]; then
 fi
 
 # Set the database parameters.
-database=mexpress
-user=mexpress
-pass=hcjpuf
+database=
+user=
+pass=
 
 # Specify the different data types.
 dataTypes=(clinical_patient clinical_sample)
