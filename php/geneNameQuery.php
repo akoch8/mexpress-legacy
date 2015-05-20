@@ -144,8 +144,8 @@ if (file_exists($savedFileName)){
                   "expressionData" => array(),
                   "annotation" => array(),
                   "slide" => array(),
-                  "pam50" => array(),
-                  "batch" => array());
+                  "pam50" => array());
+                  //"batch" => array());
     
     ##
     # methylation data query
@@ -311,7 +311,7 @@ if (file_exists($savedFileName)){
     # Batch number query
     ##
 
-    $query = "SELECT sample_name, batch FROM data_information WHERE source = $source AND full_source_name = $fullSourceName AND experiment_type = 'expression'";
+    /*$query = "SELECT sample_name, batch FROM data_information WHERE source = $source AND full_source_name = $fullSourceName AND experiment_type = 'expression'";
     
     $queryResult = mysqli_query($connection, $query);
     
@@ -327,7 +327,7 @@ if (file_exists($savedFileName)){
         
     } else {
         $data['batch'] = "no_data";
-    }
+    }*/
     
     ##
     # send the results

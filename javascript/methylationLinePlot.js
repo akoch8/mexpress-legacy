@@ -79,7 +79,7 @@ function sortData(queryResult, sorter) {
             sortedSamples.push(sampleList[element].key);
         }
     }
-    else if (sorter === "batch number") {
+    /*else if (sorter === "batch number") {
         var sampleList = [];
         for (var sample in queryResult["expressionData"]) {
             var batch = +queryResult['batch'][sample];
@@ -89,7 +89,7 @@ function sortData(queryResult, sorter) {
         for (var element in sampleList) {
             sortedSamples.push(sampleList[element].key);
         }
-    }
+    }*/
     else if (sorter === "PAM50 subtype") {
         var sampleList = [];
         var missingSamples = [];
@@ -345,11 +345,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
     }
     maxNumberOfAnnotationFields++; // add 1 for the sample type (is linked to the sample name)
-    maxNumberOfAnnotationFields++; // add 1 for the batch number
+    //maxNumberOfAnnotationFields++; // add 1 for the batch number
 
     // create an array with the unique batch numbers for the selected cancer type
     // these unique numbers are then used to create the different batch colors
-    var uniqueBatches = [];
+    /*var uniqueBatches = [];
     for (var s in queryResult['batch']) {
         var batch = +queryResult['batch'][s];
         if ($.inArray(batch, uniqueBatches) === -1) {
@@ -364,7 +364,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         var batch = uniqueBatches[b];
         var rgbValue = colorInterval*b;
         batchColors[batch] = "rgb(" + rgbValue + ","  + rgbValue +  "," + rgbValue + ")";
-    }
+    }*/
     
     // check the number of sample slide fields
     var maxNumberOfSlideFields = 0;
@@ -470,7 +470,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     stats["expressionData"] = {};
     stats["sample type"] = {};
     stats["PAM50 subtype"] = {};
-    stats["batch number"] = {};
+    //stats["batch number"] = {};
     for (var sample in queryResult["annotation"]) {
         for (var ann in queryResult["annotation"][sample]) {
             stats[ann] = {};
@@ -520,7 +520,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
             }
         }
-        else if (element === "batch number") {
+        /*else if (element === "batch number") {
             for (var s in sortedSamplesReduced) {
                 var sample = sortedSamplesReduced[s];
                 if (sample in queryResult["batch"]) {
@@ -529,7 +529,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     elementData[sample] = "no data";
                 }
             }
-        }
+        }*/
         for (var e in elementData) {
             elementDataValues.push(elementData[e]);
         }
@@ -1719,7 +1719,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             var annotationCount = 1;
 
             // draw a rectangle for the batch number
-            var batch = queryResult['batch'][sample];
+            /*var batch = queryResult['batch'][sample];
             svg.append("rect")
                 .attr("fill", batchColors[batch])
                 .attr("x", x(sampleNr))
@@ -1741,7 +1741,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 .on("mouseout", function() {
                     $(".batchId").remove();
                 });
-            annotationCount++;
+            annotationCount++;*/
             
             // draw a rectangle for the sample type
             svg.append("rect")
@@ -2074,7 +2074,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         // add the annotation names to the plot
         var annotationCount = 0;
         
-        svg.append("text")
+        /*svg.append("text")
             .attr("x", -4)
             .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount - 4)
             .attr("class", "clickable")
@@ -2092,7 +2092,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
                 
             });
-        annotationCount++;
+        annotationCount++;*/
         svg.append("text")
             .attr("x", -4)
             .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount)
