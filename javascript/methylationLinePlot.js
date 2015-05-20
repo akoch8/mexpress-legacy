@@ -1865,8 +1865,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         if (sorter === "expressionData") {
             // add the annotation correlation and p values to the plot
             // sample type
-            //var annotationCount = 0;
-            var annotationCount = 1;
+            var annotationCount = 0; // without batch ID
+            //var annotationCount = 1; // with batch ID
             var stat = stats[sorter]["sample type"];
             if (stat["p"]) {
                 var p = stat["p"];
@@ -2093,6 +2093,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 
             });
         annotationCount++;*/
+
         svg.append("text")
             .attr("x", -4)
             .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount)
