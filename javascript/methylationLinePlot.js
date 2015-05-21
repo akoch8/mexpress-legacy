@@ -1656,7 +1656,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         for (var pos in probePositions) {
             probeNr++;
             var stat = stats[sorter][probePositions[pos]];
-            if (stat["p"]) {
+            if (stat["p"] || stat["p"] === 0) {
                 var p = stat["p"];
                 if (p !== "failed") {
                     var significanceColor = "#aaa";
@@ -1666,7 +1666,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
-                    p = "p = " + p;
+                    if (pNum < 10*Math.pow(10, -16)) {
+                        p = "p < 2.2e-16"
+                    } else {
+                        p = "p = " + p;
+                    }
                     svg.append("text")
                         .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                         .attr("y", height - y(probeNr - 1) + sampleRowHeight - 4)
@@ -1868,7 +1872,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             var annotationCount = 0; // without batch ID
             //var annotationCount = 1; // with batch ID
             var stat = stats[sorter]["sample type"];
-            if (stat["p"]) {
+            if (stat["p"] || stat["p"] === 0) {
                 var p = stat["p"];
                 if (p !== "failed") {
                     var significanceColor = "#aaa";
@@ -1878,7 +1882,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
-                    p = "p = " + p;
+                    if (pNum < 10*Math.pow(10, -16)) {
+                        p = "p < 2.2e-16"
+                    } else {
+                        p = "p = " + p;
+                    }
                     svg.append("text")
                         .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                         .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
@@ -1896,7 +1904,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             for (var annotation in maxAnnotationValues) {
                 annotationCount++;
                 var stat = stats[sorter][annotation];
-                if (stat["p"]) {
+                if (stat["p"] || stat["p"] === 0) {
                     var p = stat["p"];
                     if (p !== "failed") {
                         var significanceColor = "#aaa";
@@ -1906,7 +1914,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
-                        p = "p = " + p;
+                        if (pNum < 10*Math.pow(10, -16)) {
+                            p = "p < 2.2e-16"
+                        } else {
+                            p = "p = " + p;
+                        }
                         svg.append("text")
                             .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                             .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
@@ -1978,7 +1990,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     .attr("font-family", statsFont)
                     .attr("fill", "#aaa")
                     .text(answer);
-            } else if (stat["p"]) {
+            } else if (stat["p"] || stat["p"] === 0) {
                 var p = stat["p"];
                 if (p !== "failed") {
                     var significanceColor = "#aaa";
@@ -1988,7 +2000,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
-                    p = "p = " + p;
+                    if (pNum < 10*Math.pow(10, -16)) {
+                        p = "p < 2.2e-16"
+                    } else {
+                        p = "p = " + p;
+                    }
                     svg.append("text")
                         .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                         .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight)
@@ -2004,7 +2020,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             for (var pos in probePositions) {
                 probeNr++;
                 var stat = stats[sorter][probePositions[pos]];
-                if (stat["p"]) {
+                if (stat["p"] || stat["p"] === 0) {
                     var p = stat["p"];
                     if (p !== "failed") {
                         var significanceColor = "#aaa";
@@ -2014,7 +2030,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
-                        p = "p = " + p;
+                        if (pNum < 10*Math.pow(10, -16)) {
+                            p = "p < 2.2e-16"
+                        } else {
+                            p = "p = " + p;
+                        }
                         svg.append("text")
                             .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                             .attr("y", height - y(probeNr - 1) + sampleRowHeight - 4)
@@ -2028,7 +2048,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             }
         } else {
             var stat = stats[sorter]["expressionData"]; 
-            if (stat["p"]) {
+            if (stat["p"] || stat["p"] === 0) {
                 var p = stat["p"];
                 if (p !== "failed") {
                     var significanceColor = "#aaa";
@@ -2038,7 +2058,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
-                    p = "p = " + p;
+                    if (pNum < 10*Math.pow(10, -16)) {
+                        p = "p < 2.2e-16"
+                    } else {
+                        p = "p = " + p;
+                    }
                     svg.append("text")
                         .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                         .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight)
@@ -2159,7 +2183,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             var ann = annotation.replace(/ /g, "_");
             if (ann !== sorter && sorter !== "expressionData") {
                 var stat = stats[sorter][ann];
-                if (stat["p"]) {
+                if (stat["p"] || stat["p"] === 0) {
                     var p = stat["p"];
                     if (p !== "failed") {
                         var significanceColor = "#aaa";
@@ -2169,7 +2193,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
-                        p = "p = " + p;
+                        if (pNum < 10*Math.pow(10, -16)) {
+                            p = "p < 2.2e-16"
+                        } else {
+                            p = "p = " + p;
+                        }
                         svg.append("text")
                             .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                             .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
@@ -2313,7 +2341,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             .attr("fill", correlationColor)
                             .text(rString);
                     }
-                } else if (stat["p"]) {
+                } else if (stat["p"] || stat["p"] === 0) {
                     var p = stat["p"];
                     if (p !== "failed") {
                         var significanceColor = "#aaa";
@@ -2323,7 +2351,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
-                        p = "p = " + p;
+                        if (pNum < 10*Math.pow(10, -16)) {
+                            p = "p < 2.2e-16"
+                        } else {
+                            p = "p = " + p;
+                        }
                         svg.append("text")
                             .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                             .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4)
