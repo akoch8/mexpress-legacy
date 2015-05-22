@@ -1194,7 +1194,32 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         .attr("font-family", statsFont)
         .text("p < 0.05");
     xPos += 160;
-    // column 5: sample type
+    // column 5: breast cancer subtypes
+    if (source === "BRCA breast invasive carcinoma") {
+        svg.append("text")
+            .attr("x", xPos)
+            .attr("y", yPos)
+            .attr("font-weight", "bold")
+            .text("BRCA subtype");
+        var i = 0;
+        for (var subtype in pam50subtypeColors) {
+            if (subtype !== "no data") {
+                svg.append("rect")
+                    .attr("fill", pam50subtypeColors[subtype])
+                    .attr("x", xPos)
+                    .attr("y", yPos + 8 + 18*i)
+                    .attr("width", 3)
+                    .attr("height", 12);
+                svg.append("text")
+                    .attr("x", xPos + 8)
+                    .attr("y", yPos + 18*(i + 1))
+                    .text(subtype);
+                i++;
+            }
+        }
+        xPos += 106;
+    }
+    // column 6: sample type
     svg.append("text")
         .attr("x", xPos)
         .attr("y", yPos)
