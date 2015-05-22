@@ -888,7 +888,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var geneLength = Math.abs(geneStart - geneEnd);
     // determine the height of the legend
     // this must be at least 126px, but has to be higher if there are more than 7 different sample types
-    legendHeight = 136;
+    legendHeight = 148;
     var sampleTypesPresent = [];
     if (queryResult['annotation'] !== "no_annotation") {
         for (var s in sortedSamplesReduced) {
@@ -900,7 +900,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
     }
     if (sampleTypesPresent.length > 7) {
-        legendHeight = 136 + 18*sampleTypesPresent.length;
+        legendHeight = 148 + 18*sampleTypesPresent.length;
     }
     var topMargin = 10 + (maxExpression/20)*sampleRowHeight*3 + 10 + (annotationRowHeight + 1)*maxNumberOfAnnotationFields + 20 + legendHeight;
     var leftMargin = 170 + annotationWidth;
@@ -1193,6 +1193,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         .attr("font-size", "11px")
         .attr("font-family", statsFont)
         .text("p < 0.05");
+    svg.append("text")
+        .attr("x", xPos + 16 + 32)
+        .attr("y", yPos + 18*3 + 14*4)
+        .attr("fill", "#aaa")
+        .attr("font-size", "11px")
+        .attr("font-family", statsFont)
+        .text("p \u2265 0.05");
     xPos += 160;
     // column 5: breast cancer subtypes
     if (source === "BRCA breast invasive carcinoma") {
