@@ -2145,7 +2145,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
 
         svg.append("text")
             .attr("x", -4)
-            .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount)
+            .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount - 4)
             .attr("class", "clickable")
             .attr("font-size", "12px")
             .attr("fill", "#aaa")
@@ -2165,7 +2165,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             annotationCount++;
             svg.append("text")
                 .attr("x", -4)
-                .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount + 4)
+                .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount)
                 .attr("class", "clickable")
                 .attr("font-size", "12px")
                 .attr("fill", "#aaa")
@@ -2404,7 +2404,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var sorterText = sorter.replace(/_/g, " ");
     sorterText = sorterText.replace(/Data/, "");
     var sorterTextNode = document.getElementById(sorter).firstChild;
-    sorterTextNode.nodeValue = "\u279c " + sorterText;
+    sorterTextNode.nodeValue = "\u25ba " + sorterText;
     // add a short description to the plot to make it clear what the statistics on the right side mean
     svg.append("text")
         .attr("x", width + rightMargin - 12)
