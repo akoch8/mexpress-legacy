@@ -74,11 +74,15 @@
                     <h2>Creating the plot</h2>
                     <p>
                         All that's left to do after selecting a gene and cancer type is clicking the <span class="blue">plot</span> button and the data you selected will be visualised.
+                        Samples are arranged from left to right, while the different data types (clinical, expression and methylation) are arranged from the top to the bottom of the plot.
                     </p>
                     <p>
                         Hovering over one of the methylation line plots will bring up the ID of the corresponding probe.
                         Click on a methylation line plot to fix the probe ID on the figure.
                         Click it again to remove the probe ID (or click another methylation line plot).
+                        You can also highlight the promoter probes by clicking the button right above the legend.
+                    </p>
+                    <p>
                         If you'd like to download the figure you just created, simply click the <span class="blue">png</span> or <span class="blue">svg</span> button in the upper right corner (depending on which image format you want).
                     </p>
                 </section>
@@ -94,7 +98,6 @@
                     <p>
                         Next up is the legend of the plot, which adapts to the cancer type you selected, and below the legend is the actual plot.
                         From top to bottom you will see the clinical data, the expression values and the methylation data.
-                        The samples are listed horizontally, while the different types of data are arranged vertically.
                         Let's take a detailed look at each part.
                     </p>
                     <h3>expression data</h3>
@@ -126,7 +129,7 @@
                     <p>
                         The values on the far right represent the Pearson product&#45;moment correlation coefficient between the methylation values for a probe and the expression values.
                         For GSTP1 you can see that there are quite a few probes with a strong negative correlation between methylation and expression, indicating that GSTP1 expression might be controlled through DNA methylation (which has already been described, see <a href="http://www.nature.com/onc/journal/v18/n6/full/1202415a.html" target="_blank">Millar <em>et al.</em>, 1999</a>).
-                        To make it easier to see which probes have a higher correlation coefficient, these values are marked with a darker text color.
+                        As the plot's legend explains, the asterisks give you an indication of the significance of the correlations.
                     </p>
                     <h3>clinical data</h3>
                     <figure>
@@ -151,7 +154,8 @@
                     <p>
                         As described earlier, the samples are sorted based on their expression value by default.
                         By clicking on the name of the annotation parameter you're interested in, you can rearrange the samples by the annotation you just selected.
-                        Besides the rearrangement of the samples, all correlation and p values will be recalculated.
+                        So if you would for example like to compare age to the expression and methylation of a certain gene or to the other clinical parameters, you just have to click on "age at diagnosis" and the samples will be reordered.
+                    </p>
                 </section>
                 <section>
                     <a class="startButton" href="/">Let's get started!</a>
