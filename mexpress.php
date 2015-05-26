@@ -87,8 +87,8 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                                         ksort($tumorSources);
                                         foreach($tumorSources as $key => $value){
                                             $fullSourceName = $value;
-                                            if (strlen($fullSourceName) > 28){
-                                                $fullSourceName = substr($fullSourceName, 0, 28);
+                                            if (strlen($fullSourceName) > 29){
+                                                $fullSourceName = substr($fullSourceName, 0, 26);
                                                 $fullSourceName = preg_replace('/ $/', "", $fullSourceName);
                                                 $fullSourceName = $fullSourceName."...";
                                             }
@@ -138,6 +138,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
         <script type="text/javascript" src="javascript/autocomplete.js"></script>
         <script type="text/javascript" src="javascript/sampleSelection.js"></script>
         <script type="text/javascript" src="javascript/downloadSvg.js"></script>
+        <!--<script type="text/javascript" src="javascript/mexpress.min.js"></script>-->
         <script type="text/javascript" src="javascript/statistics.js"></script>
         <script type="text/javascript" src="javascript/methylationLinePlot.js"></script>
     </body>
