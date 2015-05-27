@@ -133,7 +133,11 @@ for (t in 1:length(fileNames)){
 sqlQuery = sub(",\n$", "\n", sqlQuery)
 
 # Add the LOAD DATA statements to the sql query.
-sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", source, "/", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
+if (ncol(data) >= 999){
+	sqlQuery = paste(sqlQuery, ")\nENGINE = MyISAM;\nLOAD DATA LOCAL INFILE '", source, "/", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
+} else {
+	sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", source, "/", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
+}
 
 # Write the sql queries to a file.
 cat(sqlQuery, file=paste(source, "/load_", tableName, ".sql", sep=""), sep="")
