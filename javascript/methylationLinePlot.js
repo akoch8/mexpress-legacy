@@ -2513,7 +2513,7 @@ function checkUserInput() {
     removeMessages();
     // get the selected gene
     var gene = $("#gene").val();
-    gene = gene.replace(/[<>\\\/;'"()]/g, "");
+    gene = gene.replace(/[<>\\\/;'"()=\[\]\{\}]/g, "");
     // get the selected source
     var source = $(".sampleSelectionList").find(".selectedSample").text();
     if (gene === '') {
@@ -2536,7 +2536,7 @@ function plotPreparation() {
     removeMessages();
     // get the selected gene
     var gene = $("#gene").val();
-    gene = gene.replace(/[<>\\\/;'"()]/g, "");
+    gene = gene.replace(/[<>\\\/;'"()=\[\]\{\}]/g, "");
     // get the selected source
     var sourceName = $(".sampleSelectionList").find(".selectedSample").find(".sourceName").text();
     var fullSourceName = $(".sampleSelectionList").find(".selectedSample").find(".fullSourceName").attr("title");
