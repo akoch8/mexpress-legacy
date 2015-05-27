@@ -15,7 +15,7 @@ function createNewPlot(gene, source, numberOfSamples) {
         } else {
             // data was found
             var sorter = "expressionData";
-            //createPlot(queryResult, gene, source, numberOfSamples, sorter);
+            createPlot(queryResult, gene, source, numberOfSamples, sorter);
         }
         $(".loadingAnimation").hide();
         $(".plotWindow").toggleClass("transparent");
