@@ -15,7 +15,7 @@ function createNewPlot(gene, source, numberOfSamples) {
         } else {
             // data was found
             var sorter = "expressionData";
-            createPlot(queryResult, gene, source, numberOfSamples, sorter);
+            //createPlot(queryResult, gene, source, numberOfSamples, sorter);
         }
         $(".loadingAnimation").hide();
         $(".plotWindow").toggleClass("transparent");
@@ -2513,6 +2513,7 @@ function checkUserInput() {
     removeMessages();
     // get the selected gene
     var gene = $("#gene").val();
+    gene = gene.replace(/[<>\\\/;'"()]/g, "");
     // get the selected source
     var source = $(".sampleSelectionList").find(".selectedSample").text();
     if (gene === '') {
@@ -2535,6 +2536,7 @@ function plotPreparation() {
     removeMessages();
     // get the selected gene
     var gene = $("#gene").val();
+    gene = gene.replace(/[<>\\\/;'"()]/g, "");
     // get the selected source
     var sourceName = $(".sampleSelectionList").find(".selectedSample").find(".sourceName").text();
     var fullSourceName = $(".sampleSelectionList").find(".selectedSample").find(".fullSourceName").attr("title");
