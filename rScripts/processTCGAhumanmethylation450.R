@@ -22,10 +22,6 @@ fullSourceName = args[2]
 fullSourceName = gsub("_", " ", fullSourceName)
 dirName = args[3]
 
-#print(paste("source = ",source,sep=""))
-#print(paste("source = ",fullSourceName,sep=""))
-#print(paste("directory = ", dirName, sep=""))
-
 # Specify the folder where the data files are stored.
 dataDir = paste(source, "/", dirName, sep="")
 # Ensure that the specified folder ends with a trailing forward slash.
@@ -60,15 +56,9 @@ if(file.exists(dataFile)){
 	}
 }
 
-#count=0
 print("reading new data files...")
 
 for (t in 1:length(fileNames)){
-	
-	#count = count + 1
-	#if (count %% 20 == 0){
-	#	print(count)	
-	#}
 	
 	barcode = fileNames[t]
 	barcode = sub("jhu-usc\\.edu_.+lvl-3\\.", "", barcode)
@@ -80,9 +70,6 @@ for (t in 1:length(fileNames)){
 	sample = gsub("[ABCDEFGHIJKLMNOPQRSTUVWXYZ]$", "", sample)
 	
 	if (is.null(sample) | length(sample) == 0){
-		#print(paste("uuid = ", uuid, sep=""))
-		#print(paste("full sample name = ", barcode, sep=""))
-		#print(paste("sample ", t, " = ", sample, sep=""))
 		next
 	}
 	
@@ -123,20 +110,14 @@ for (t in 1:length(fileNames)){
 	
 }
 
-#print(count)
-
-#data = as.data.frame(data, stringsAsFactors=F)
-#dim(data)
-#data[1:10,1:10]
-
 # Remove the trailing comma from the sql query.
 sqlQuery = sub(",\n$", "\n", sqlQuery)
 
 # Add the LOAD DATA statements to the sql query.
 if (ncol(data) >= 999){
-	sqlQuery = paste(sqlQuery, ")\nENGINE = MyISAM;\nLOAD DATA LOCAL INFILE '", source, "/", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
+	sqlQuery = paste(sqlQuery, ")\nENGINE = MyISAM;\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
 } else {
-	sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", source, "/", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
+	sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
 }
 
 # Write the sql queries to a file.

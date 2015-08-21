@@ -17,9 +17,6 @@ args = commandArgs(trailingOnly = T)
 source = args[1]
 dirName = args[2]
 
-#print(paste("source = ", source, sep=""))
-#print(paste("directory = ", dirName, sep=""))
-
 # Specify the folder where the data files are stored.
 dataDir = paste(source, "/", dirName, sep="")
 # Ensure that the specified folder ends with a trailing forward slash.
@@ -28,7 +25,7 @@ dataDir = paste(dataDir, "/", sep="")
 
 fileName = dir(dataDir)
 fileName = paste(dataDir, fileName, sep="")
-dataFile = paste("tcga_clinicalPatient_data_", source, ".txt", sep="")
+dataFile = paste(source, "/tcga_clinicalPatient_data_", source, ".txt", sep="")
 
 tableName = paste("clinical_patient_", source, sep="")
 sqlQuery = paste("DROP TABLE IF EXISTS ", tableName, ";\nCREATE TABLE ", tableName, "(\n", sep="")
@@ -282,7 +279,7 @@ for (t in 1:ncol(clinical)){
 sqlQuery = sub(",\n$", "\n", sqlQuery)
 
 # Add the LOAD DATA statements to the sql query.
-sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", source, "/", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nCREATE INDEX patient_barcode_index ON ", tableName, " (patient_barcode);", sep="")
+sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nCREATE INDEX patient_barcode_index ON ", tableName, " (patient_barcode);", sep="")
 
 # Write the sql queries to a file.
 cat(sqlQuery, file=paste("load_", tableName, ".sql", sep=""), sep="")
