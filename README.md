@@ -3,7 +3,7 @@ MEXPRESS
 
 ### About
 
-[MEXPRESS](http://mexpress.be) is a data visualization tool designed for the easy visualization of [TCGA](https://tcga-data.nci.nih.gov/tcga/) expression, DNA methylation and clinical data, as well as the relationships between them.
+[MEXPRESS](http://mexpress.be) is a data visualization tool designed for the easy visualization of [TCGA](https://tcga-data.nci.nih.gov/tcga/) expression, DNA methylation and clinical data, as well as the relationships between them. It has been published in BMC Genomics: http://www.biomedcentral.com/1471-2164/16/636.
 
 This repository contains the back and front-end code to make MEXPRESS run. It also includes the different scripts that are used to download and process the TCGA data that is needed for the tool to work. I am assuming that you have a functioning web server that includes PHP and MySQL and that you can run bash scripts.
 
