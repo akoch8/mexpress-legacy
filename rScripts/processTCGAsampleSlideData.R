@@ -76,7 +76,7 @@ sqlQuery = sub(",\n$", "\n", sqlQuery)
 sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nCREATE INDEX sample_index ON ", tableName, " (sample);", sep="")
 
 # Write the sql queries to a file.
-cat(sqlQuery, file=paste("load_", tableName, ".sql", sep=""), sep="")
+cat(sqlQuery, file=paste(source, "/load_", tableName, ".sql", sep=""), sep="")
 
 # Write the result to a file.
 write.table(dataAggr, dataFile, col.names=T, row.names=F, sep="\t", quote=F)

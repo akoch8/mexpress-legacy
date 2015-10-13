@@ -207,8 +207,6 @@ fi
 # for each cancer type. The column names we are interested in
 # can be found in the file clinicalPatientData.txt.
 Rscript processTCGAclinicalPatientData.R "${tumorType}" clinicalPatient
-mv load_clinical_patient_"${tumorType}".sql "${tumorType}"/.
-mv tcga_clinicalPatient_data_"${tumorType}".txt "${tumorType}"/.
 #echo "done"
 
 # Download the most recent version of the sample slide data.
@@ -249,5 +247,3 @@ fi
 # Extract the columns we are interested in. This is different for each cancer type.
 # The column names we are interested in can be found in the file sampleSlideData.txt.
 Rscript processTCGAsampleSlideData.R "${tumorType}" sampleSlide
-mv load_clinical_sample_"${tumorType}".sql "${tumorType}"/.
-mv tcga_sampleSlide_data_"${tumorType}".txt "${tumorType}"/.

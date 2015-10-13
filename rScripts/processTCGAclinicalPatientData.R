@@ -282,6 +282,6 @@ sqlQuery = sub(",\n$", "\n", sqlQuery)
 sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nCREATE INDEX patient_barcode_index ON ", tableName, " (patient_barcode);", sep="")
 
 # Write the sql queries to a file.
-cat(sqlQuery, file=paste("load_", tableName, ".sql", sep=""), sep="")
+cat(sqlQuery, file=paste(source, "/load_", tableName, ".sql", sep=""), sep="")
 
 write.table(clinical, dataFile, sep="\t", col.names=T, row.names=F, quote=F)
