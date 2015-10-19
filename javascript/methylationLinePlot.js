@@ -2577,6 +2577,9 @@ function plotPreparation() {
             // hide the plot window
             $(".plotWindow").toggleClass("hidden");
             $("#userInputForm .inputButton").toggleClass("inactive");
+            $(".loadingAnimation").hide();
+            $(".plotContainer").css("background", "#f6f6f6");
+            $(".plotContainer").css("border", "4px solid #efefef");
             
         }
     });
