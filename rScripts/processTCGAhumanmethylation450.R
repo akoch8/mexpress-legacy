@@ -4,7 +4,7 @@
 ### and to create a sql script to load the data in mexpress.
 ###
 ### usage:
-### Rscript processTCGAmethylationData.R source full_source_name data_directory_name
+### Rscript processTCGAmethylation450.R source full_source_name data_directory_name
 ###
 ##
 #
@@ -89,7 +89,7 @@ for (t in 1:length(fileNames)){
 		if (t == 1 & !file.exists(dataFile)){
 			# Add a column with the probe IDs and one for a numeric probe ID to the data matrix.
 			probeIds = sampleData[,1]
-			ids = seq(1,nrow(data))
+			ids = seq(1,nrow(sampleData))
 			data = cbind(ids, probeIds)
 			colnames(data) = c("id", "probeID")
 		}
