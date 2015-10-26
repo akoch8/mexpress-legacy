@@ -1059,7 +1059,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     svg.append("text")
         .attr("x", xPos + 8)
         .attr("y", yPos + 18*2)
-        .text("Infinium 450k");
+        .text(queryResult['platform']);
     // clinical/slide
     svg.append("rect")
         .attr("fill", annotationColorEven)

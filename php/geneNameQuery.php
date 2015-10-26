@@ -25,7 +25,6 @@ if (file_exists($savedFileName)){
     
 } else {
     
-    
     $sourceArray = explode(' ', $sourceString);
     $source = "'".array_shift($sourceArray)."'";
     $fullSourceName = "'".implode(" ", $sourceArray)."'";
@@ -39,12 +38,12 @@ if (file_exists($savedFileName)){
         mysqli_close($connection);
         die;
     } elseif (mysqli_num_rows($queryResult) == 0){
-        $error = array("success" => false, "message" => "Sorry, but there is no data available for <strong>$gene</strong>.", "data" => array());
+        $error = array("success" => false, "message" => "Sorry, but there is no transcript data available for <strong>$gene</strong>.", "data" => array());
         echo json_encode($error);
         mysqli_close($connection);
         die;
     }
-    
+
     $transcripts = array();
     while ($row = mysqli_fetch_assoc($queryResult)){
         $ensembl_id = $row['ensembl_id'];
@@ -80,7 +79,7 @@ if (file_exists($savedFileName)){
         mysqli_close($connection);
         die;
     } elseif (mysqli_num_rows($queryResult) == 0){
-        $error = array("success" => false, "message" => "Sorry, but there is no data available for <strong>$gene</strong>.", "data" => array());
+        $error = array("success" => false, "message" => "Sorry, but there is no exon data available for <strong>$gene</strong>.", "data" => array());
         echo json_encode($error);
         mysqli_close($connection);
         die;
@@ -107,16 +106,29 @@ if (file_exists($savedFileName)){
             $cpgislands[] = array("start" => $cpgiStart, "end" => $cpgiEnd);
         }
     }
-    
+
     # methylation probe query
-    $probeQuery = "SELECT * FROM infinium450k_annotation WHERE infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY mapInfo";
+    $platformQuery = "SELECT technology FROM data_information WHERE source = $source AND experiment_type = 'methylation' LIMIT 1";
+    $platformQueryResult = mysqli_query($connection, $platformQuery);
+    if (!$platformQueryResult){
+        echo json_encode(mysqli_error());
+        mysqli_close($connection);
+        die;
+    }
+    $row = mysqli_fetch_assoc($platformQueryResult);
+    $platform = $row["technology"];
+    if ($platform == "infinium 450k"){
+        $probeQuery = "SELECT * FROM infinium450k_annotation WHERE infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY mapInfo";
+    } elseif ($platform == "infinium 27k") {
+        $probeQuery = "SELECT * FROM infinium27k_annotation WHERE infinium27k_annotation.chr = '$chromosome' AND infinium27k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY mapInfo";
+    }
     $probeQueryResult = mysqli_query($connection, $probeQuery);
     if (!$probeQueryResult){
         echo json_encode(mysqli_error());
         mysqli_close($connection);
         die;
     } elseif (mysqli_num_rows($probeQueryResult) == 0){
-        $error = array("success" => false, "message" => "Sorry, but there is no data available for <strong>$gene</strong>.", "data" => array());
+        $error = array("success" => false, "message" => "Sorry, but there is no methylation data available for <strong>$gene</strong>.", "data" => array());
         echo json_encode($error);
         mysqli_close($connection);
         die;
@@ -130,14 +142,13 @@ if (file_exists($savedFileName)){
         $probeIds[$location] = $probeId;
     }
     
-    # loop through the sources and extract the methylation info for each one of them
-    
     $data = array("success" => true,
                   "message" => "Successfully obtained methylation data.",
                   "geneInfo" => array("ensembl" => $ensembl_id, "hgnc" => $hgnc_symbol, "chr" => $chromosome, "start" => $geneStart, "end" => $geneEnd, "strand" => $strand),
                   "transcripts" => $transcripts,
                   "cpgi" => $cpgislands,
                   "source" => $source,
+                  "platform" => $platform,
                   "numberOfProbes" => $numerOfProbes,
                   "probeIds" => $probeIds,
                   "methylationData" => array(),
@@ -168,7 +179,12 @@ if (file_exists($savedFileName)){
     $queryResultRow = mysqli_fetch_array($queryResult);
     $tableName = $queryResultRow["data_table"];
     
-    $dataQuery = "SELECT infinium450k_annotation.mapInfo, $tableName.* FROM infinium450k_annotation LEFT OUTER JOIN $tableName ON (infinium450k_annotation.id = $tableName.id) WHERE infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY infinium450k_annotation.mapInfo";
+    if ($platform == "infinium 450k"){
+        $dataQuery = "SELECT infinium450k_annotation.mapInfo, $tableName.* FROM infinium450k_annotation LEFT OUTER JOIN $tableName ON (infinium450k_annotation.id = $tableName.id) WHERE infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY infinium450k_annotation.mapInfo";
+    } elseif ($platform == "infinium 27k") {
+        $dataQuery = "SELECT infinium27k_annotation.mapInfo, $tableName.* FROM infinium27k_annotation LEFT OUTER JOIN $tableName ON (infinium27k_annotation.id = $tableName.id) WHERE infinium27k_annotation.chr = '$chromosome' AND infinium27k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY infinium27k_annotation.mapInfo";
+    }
+    
     $dataQueryResult = mysqli_query($connection, $dataQuery);
     
     while ($row = mysqli_fetch_assoc($dataQueryResult)){
