@@ -21,9 +21,9 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
         <link rel="icon" type="image/png" href="images/m_icon.png">
         <link rel="stylesheet" type="text/css" href="css/global.css" />
         <link rel="stylesheet" type="text/css" href="css/mexpress.css" />
-        <script type="text/javascript" src="javascript/d3.v3.js"></script>
+        <script type="text/javascript" src="javascript/d3.v3.min.js"></script>
         <script type="text/javascript" src="javascript/jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="javascript/jquery.autocomplete.js"></script>
+        <script type="text/javascript" src="javascript/jquery.autocomplete.min.js"></script>
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
         <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -101,16 +101,6 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                         </div>
                         <input type="submit" value="plot" class="inputButton" onClick="_gaq.push(['_trackEvent', 'plotButton', 'click', '', 0, false]);"/>
                     </form>
-                    <!--<div class="warningMessage">
-                        <p>
-                            Dear user,
-                        </p>
-                        <p>
-                            We are currently experiencing some database problems.
-                            We are doing our best to get MEXPRESS up and running again as soon as possible!
-                            We apologize for the inconvenience!
-                        </p>
-                    </div>-->
                 </div>
                 <div class="plotContainer">
                     <div class="plotInfo"></div>
@@ -138,12 +128,6 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                 <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2015
             </p>
         </footer>
-        <script type="text/javascript" src="javascript/general.js"></script>
-        <script type="text/javascript" src="javascript/autocomplete.js"></script>
-        <script type="text/javascript" src="javascript/sampleSelection.js"></script>
-        <script type="text/javascript" src="javascript/downloadSvg.js"></script>
-        <!--<script type="text/javascript" src="javascript/mexpress.min.js"></script>-->
-        <script type="text/javascript" src="javascript/statistics.js"></script>
-        <script type="text/javascript" src="javascript/methylationLinePlot.js"></script>
+        <script type="text/javascript" src="javascript/mexpress.min.js"></script>
     </body>
 </html>    
