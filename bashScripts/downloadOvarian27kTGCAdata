@@ -1,0 +1,82 @@
+#!/bin/bash
+
+### Download the Infinium 27k TCGA data for ovarian cancer
+###
+### Program fl0w
+## - get tumor type
+## - build url based on user input
+## - wget the necessary file name(s)
+## - check if the files already exist locally
+## - if there are new or updated files available, download them
+## - unzip the files
+## - process them using the appropriate R script so they're ready
+##   to be uploaded
+
+tumorType=ov
+fullTumorTypeName=ovarian_serous_cystadenocarcinoma
+url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/ov/cgcc/jhu-usc.edu/humanmethylation27/methylation/
+fileNames=(`wget -q -O - ${url} | grep -o -E "\"jhu-usc\.edu_.+Level_3.+\.tar.gz\""`)
+downloadedInfiniumFileCount=0
+downloadedFiles=()
+echo "downloading..."
+for i in "${fileNames[@]}"; do
+    fileName=
+    fileName=${i//\"/}
+    dirName=${fileName%.tar.gz}
+    # Check if the folder already exists locally.
+    # If it doesn't: download the methylation data.
+    if [ ! -d ${tumorType}/${dirName} ]; then
+        urli=${url}${fileName}
+        #echo "file = ${fileName}"
+        #echo "url = ${urli}"
+        downloadedFiles+=("${fileName}")
+        wget -q -O "${tumorType}/${fileName}" $urli &
+        downloadedInfiniumFileCount=`expr $downloadedInfiniumFileCount + 1`
+    fi
+    while (( $(jobs | wc -l) >= 6 )); do
+        sleep 0.1
+        jobs > /dev/null
+    done
+done
+wait
+echo "done."
+if [ $downloadedInfiniumFileCount -eq 0 ]; then
+    # No files were downloaded, meaning that all the data was already
+    # available locally.
+    #echo
+    echo "There is no new TCGA DNA methylation (HumanMethylation27) data available."
+    #echo
+else
+    echo "extracting..."
+    echo "New TCGA DNA methylation (HumanMethylation27) data found!"
+    for i in "${downloadedFiles[@]}"; do
+        fileName=
+        fileName=${i//\"/}
+        tar -zxf "${tumorType}/${fileName}" -C "${tumorType}" &
+        while (( $(jobs | wc -l) >= 6 )); do
+            sleep 0.1
+            jobs > /dev/null
+        done
+    done
+    wait
+    # Create a temporary folder to store all the methylation data together,
+    # ready for processing.
+    mkdir "${tumorType}"/humanMethylation27temp/
+    for i in "${downloadedFiles[@]}"; do
+        fileName=
+        fileName=${i//\"/}
+        dirName=${fileName%.tar.gz}
+        rm "${tumorType}/${fileName}"
+        mv "${tumorType}/${dirName}"/jhu-usc.edu_* ${tumorType}/humanMethylation27temp/.
+        # Clean up any remaining files in the TCGA data folder
+        rm "${tumorType}/${dirName}"/*
+    done
+    echo "processing..."
+    Rscript processTCGAhumanmethylation27.R "${tumorType}" "${fullTumorTypeName}" humanMethylation27temp
+    # Clean up the TCGA data. We have combined the data in one file,
+    # so we don't need the separate files anymore.
+    echo "cleaning up..."
+    rm -rf "${tumorType}"/humanMethylation27temp
+    echo "done!"
+    #echo "${tumorType}" >> upload_methylation.txt
+fi
