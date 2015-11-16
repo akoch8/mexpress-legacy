@@ -2460,7 +2460,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     } else {
         $(".plotInfo").html("<p><strong><a href='http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + hgnc + "' target='_blank' title='This link will take you to the GeneCards.org page for " + hgnc + ".'>" + hgnc + "</a></strong> <span class='ensembl'>" + ensembl + "</span> chr<span class='chromosome'>" + chromosome + "</span>:" + startComma + "-" + endComma + "</p>");
     }
-    $(".plotInfo").append("<div class='promoterSelectionButton'>highlight promoter probes</div>");
+    $(".plotInfo").append("<div class='promoterSelectionButton noselect'>highlight promoter probes</div>");
     $(".promoterSelectionButton").click(function(){
         
         // highlight the promoter probes
