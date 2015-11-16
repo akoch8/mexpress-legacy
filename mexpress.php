@@ -116,7 +116,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                 See <a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines" target="_blank">http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines</a> for additional information.</em>
             </p>
             <p>
-                If you'd like use this tool (and we hope you do!), please cite our paper <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank">MEXPRESS: visualizing expression, DNA methylation and clinical TCGA data</a>.
+                If you'd like to use this tool (and we hope you do!), please cite our paper <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank">MEXPRESS: visualizing expression, DNA methylation and clinical TCGA data</a>.
             </p>
             <p>
                 Developed by Alexander Koch &#64; <a href="http://www.biobix.be" target="_blank">BIOBIX</a> &#8211; Ghent University
