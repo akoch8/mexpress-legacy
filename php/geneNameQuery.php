@@ -95,7 +95,7 @@ if (file_exists($savedFileName)){
     }
     
     # cpg islands query
-    $query = "SELECT * FROM cpg_islands WHERE chrom='chr$chromosome' AND (chromStart BETWEEN $plotStart AND $plotEnd) OR (chromEnd BETWEEN $plotStart AND $plotEnd);";
+    $query = "SELECT * FROM cpg_islands WHERE chrom='chr$chromosome' AND ((chromStart BETWEEN $plotStart AND $plotEnd) OR (chromEnd BETWEEN $plotStart AND $plotEnd));";
     $queryResult = mysqli_query($connection, $query);
     
     $cpgislands = array();
