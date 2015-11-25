@@ -905,7 +905,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var topMargin = 10 + (maxExpression/20)*sampleRowHeight*3 + 10 + (annotationRowHeight + 1)*maxNumberOfAnnotationFields + 20 + legendHeight;
     var leftMargin = 170 + annotationWidth;
     var rightMargin = 110;
-    var margin = {top: topMargin, left: leftMargin, bottom: 20, right: rightMargin};
+    var margin = {top: topMargin, left: leftMargin, bottom: 40, right: rightMargin};
     var width = plotWidth - leftMargin - rightMargin;
     // account for the width of the legend
     var minWidth = 600;
