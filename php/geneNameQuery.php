@@ -134,11 +134,21 @@ if (file_exists($savedFileName)){
         die;
     }
     $numerOfProbes = mysqli_num_rows($probeQueryResult);
-    # get the probe IDs
+    # get the probe IDs and annotation
     $probeIds = array();
+    $probeAnnotation = array();
     while ($row = mysqli_fetch_assoc($probeQueryResult)){
         $probeId = $row['probeID'];
         $location = $row['mapInfo'];
+        $genes = explode(';', $row['genes']);
+        $annotation = explode(';', $row['annotation']);
+        $annResult = array();
+        foreach ($genes as $index => $gene){
+            if ($gene === $hgnc_symbol){
+                array_push($annResult, $annotation[$index]);
+            }
+        }
+        $probeAnnotation[$location] = implode(", ", $annResult);
         $probeIds[$location] = $probeId;
     }
     
@@ -151,6 +161,7 @@ if (file_exists($savedFileName)){
                   "platform" => $platform,
                   "numberOfProbes" => $numerOfProbes,
                   "probeIds" => $probeIds,
+                  "probeAnnotation" => $probeAnnotation,
                   "methylationData" => array(),
                   "expressionData" => array(),
                   "annotation" => array(),

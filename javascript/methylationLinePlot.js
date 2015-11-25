@@ -1553,6 +1553,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     .attr("width", sampleColumnWidth*numberOfSamples)
                     .attr("height", sampleRowHeight)
                     .attr("id", pos + "_" + probeId + "_" + probeNr)
+                    .attr("class", "clickable")
                     .on("mouseover", function() {
                         
                         var positionProbeId = $(this).attr("id");
@@ -1604,8 +1605,10 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         // remove the existing probe ID
                         $(".focusLineClicked").remove();
                         $(".probeIdClicked").remove();
+                        $(".probeInfo").remove();
                         if (existingId !== positionProbeId) {
                             // add a new probe ID
+                            var chromosome = queryResult['geneInfo']['chr'];
                             var position = positionProbeId.replace(/_.+$/, "");
                             var probeId = positionProbeId.replace(/^.+?_/, "");
                             probeId = probeId.replace(/_.+$/, "");
@@ -1626,10 +1629,57 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 .attr("x", -74)
                                 .attr("y", height - y(probeLocationPlot) - 6)
                                 .attr("text-anchor", "end")
-                                .attr("class", "probeIdClicked")
+                                .attr("class", "probeIdClicked clickable")
                                 .attr("font-size", "11px")
                                 .attr("fill", methylationLineColor)
-                                .text(probeId);
+                                .text(probeId)
+                                .on("mouseup", function() {
+                                    // show the probe annotation
+                                    svg.append("rect")
+                                        .attr("x", -142)
+                                        .attr("y", height - y(probeLocationPlot) - 24)
+                                        .attr("width", 140)
+                                        .attr("height", 66)
+                                        .attr("fill", "#fff")
+                                        .attr("stroke", methylationLineColor)
+                                        .attr("stroke-width", 2)
+                                        .attr("class", "probeInfo clickable")
+                                        .on("mouseup", function() {
+                                            $(".probeInfo").remove();
+                                        });
+                                    svg.append("text")
+                                        .attr("x", -136)
+                                        .attr("y", height - y(probeLocationPlot) - 6)
+                                        .attr("class", "probeInfo")
+                                        .attr("font-weight", "bold")
+                                        .text(probeId);
+                                    // probe location & annotation
+                                    svg.append("text")
+                                        .attr("x", -136)
+                                        .attr("y", height - y(probeLocationPlot) + 14)
+                                        .attr("class", "probeInfo")
+                                        .text("chr" + chromosome + ":" + position);
+                                    var annotation = queryResult["probeAnnotation"][position];
+                                    // replace the "-" character by the plus over minus character
+                                    annotation = annotation.replace("-", " \u00B1 ");
+                                    svg.append("text")
+                                        .attr("x", -136)
+                                        .attr("y", height - y(probeLocationPlot) + 30)
+                                        .attr("class", "probeInfo")
+                                        .text(annotation);
+                                    // add a multiplication character to indicate that the annotation info can be closed
+                                    svg.append("text")
+                                        .attr("x", -20)
+                                        .attr("y", height - y(probeLocationPlot) - 4)
+                                        .attr("class", "probeInfo clickable")
+                                        .attr("font-size", "18px")
+                                        .attr("font-weight", "bold")
+                                        .attr("fill", methylationLineColor)
+                                        .text("\u00D7")
+                                        .on("mouseup", function() {
+                                            $(".probeInfo").remove();
+                                        });
+                                });
                             svg.append("line")
                                 .attr("x1", -leftMargin)
                                 .attr("x2", -leftMargin + annotationWidth + 80)
@@ -2454,11 +2504,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     endComma = end + "," + endComma;
     endComma = endComma.replace(/,$/, "");
     endComma = endComma.replace(/^,/, "");
-    
+    var ucscPosition = "chr" + chromosome + ":" + startComma + "-" + endComma;
     if (hgnc === "") {
-        $(".plotInfo").html("<p><strong>" + ensembl + "</strong> chr<span class='chromosome'>" + chromosome + "</span>:" + startComma + "-" + endComma + "</p>");
+        $(".plotInfo").html("<p><strong>" + ensembl + "</strong> <a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=" + ucscPosition + "' target='_blank' title='This link will take you to the UCSC Genome Browser'>" + ucscPosition + "</a></p>");
     } else {
-        $(".plotInfo").html("<p><strong><a href='http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + hgnc + "' target='_blank' title='This link will take you to the GeneCards.org page for " + hgnc + ".'>" + hgnc + "</a></strong> <span class='ensembl'>" + ensembl + "</span> chr<span class='chromosome'>" + chromosome + "</span>:" + startComma + "-" + endComma + "</p>");
+        $(".plotInfo").html("<p><strong><a href='http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + hgnc + "' target='_blank' title='This link will take you to the GeneCards.org page for " + hgnc + ".'>" + hgnc + "</a></strong> <span class='ensembl'>" + ensembl + "</span> <a href='http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=" + ucscPosition + "' target='_blank' title='This link will take you to the UCSC Genome Browser'>" + ucscPosition + "</a></p>");
     }
     $(".plotInfo").append("<div class='promoterSelectionButton noselect'>highlight promoter probes</div>");
     $(".promoterSelectionButton").click(function(){
