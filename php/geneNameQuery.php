@@ -118,7 +118,7 @@ if (file_exists($savedFileName)){
     $row = mysqli_fetch_assoc($platformQueryResult);
     $platform = $row["technology"];
     if ($platform == "infinium 450k"){
-        $probeQuery = "SELECT * FROM infinium450k_annotation WHERE infinium450k_annotation.methyl27 = 0 AND infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY mapInfo";
+        $probeQuery = "SELECT * FROM infinium450k_annotation WHERE infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY mapInfo";
     } elseif ($platform == "infinium 27k") {
         $probeQuery = "SELECT * FROM infinium450k_annotation WHERE infinium450k_annotation.methyl27 = 1 AND infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY mapInfo";
     }
@@ -191,7 +191,7 @@ if (file_exists($savedFileName)){
     $tableName = $queryResultRow["data_table"];
     
     if ($platform == "infinium 450k"){
-        $dataQuery = "SELECT infinium450k_annotation.mapInfo, $tableName.* FROM infinium450k_annotation LEFT OUTER JOIN $tableName ON (infinium450k_annotation.id = $tableName.id) WHERE infinium450k_annotation.methyl27 = 0 AND infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY infinium450k_annotation.mapInfo";
+        $dataQuery = "SELECT infinium450k_annotation.mapInfo, $tableName.* FROM infinium450k_annotation LEFT OUTER JOIN $tableName ON (infinium450k_annotation.id = $tableName.id) WHERE infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY infinium450k_annotation.mapInfo";
     } elseif ($platform == "infinium 27k") {
         $dataQuery = "SELECT infinium450k_annotation.mapInfo, $tableName.* FROM infinium450k_annotation LEFT OUTER JOIN $tableName ON (infinium450k_annotation.id = $tableName.id) WHERE infinium450k_annotation.methyl27 = 1 AND infinium450k_annotation.chr = '$chromosome' AND infinium450k_annotation.mapInfo BETWEEN $plotStart AND $plotEnd ORDER BY infinium450k_annotation.mapInfo";
     }
