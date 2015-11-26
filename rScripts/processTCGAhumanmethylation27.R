@@ -63,6 +63,10 @@ if(file.exists(dataFile)){
 	}
 }
 
+# Read the file with the probe IDs (must be the same as for the 450k data!).
+probeIds = fread("infinium450k_probeIDs.txt", data.table=F)
+colnames(probeIds) = c("probeID", "id")
+
 print("reading new data files...")
 
 for (t in 1:length(fileNames)){
@@ -86,27 +90,26 @@ for (t in 1:length(fileNames)){
 		sampleFile = paste(dataDir, fileNames[t], sep="")
 		sampleData = fread(sampleFile, skip=1, colClasses=rep("character", 5), stringsAsFactors=F, data.table=F)
 		sampleData = sampleData[,c(1, 2)]
+		colnames(sampleData) = c("probeID", "beta")
 		# Ensure that the probe IDs are in alphabetical order.
-		sampleData = sampleData[order(sampleData[,1]),]
+		sampleData = sampleData[order(sampleData$probeID),]
 		# Replace the NA values with \N so that MySQL will recognize that these values
 		# are missing instead of replacing them with 0.
 		sampleData[is.na(sampleData)] = "\\N"
 		
 		if (t == 1 & !file.exists(dataFile)){
 			# Add a column with the probe IDs and one for a numeric probe ID to the data matrix.
-			probeIds = sampleData[,1]
-			ids = seq(1,nrow(sampleData))
-			data = cbind(ids, probeIds)
-			colnames(data) = c("id", "probeID")
+			data = merge(sampleData, probeIds)
+			data = data[,c("id", "probeID")]
 		}
 
 		numRows = nrow(data)
 		if (nrow(sampleData) > numRows){
-			sampleData = sampleData[sampleData[,1] %in% probeIds,]
+			sampleData = sampleData[sampleData$probeID %in% data$probeID,]
 		}
 		
 		if (!sample %in% colnames(data)){
-			data = cbind(data, sampleData[,2])
+			data = cbind(data, sampleData$beta)
 			colnames(data)[ncol(data)] = sample
 			sqlQuery = paste(sqlQuery, paste(sample, " DECIMAL(11,10),\n", sep=""))
 			dataInfoQuery = paste(dataInfoQuery, "INSERT INTO data_information (sample_name, data_table, source, full_source_name, experiment_type, technology) VALUES ('", sample, "', '", tableName, "', '", source, "', '", fullSourceName, "', 'methylation', 'infinium 27k');\n", sep="")
