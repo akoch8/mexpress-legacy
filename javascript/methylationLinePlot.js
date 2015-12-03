@@ -1634,11 +1634,18 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 .attr("fill", methylationLineColor)
                                 .text(probeId)
                                 .on("mouseup", function() {
+                                    var annotation = queryResult["probeAnnotation"][position];
+                                    // replace the "-" character by the plus over minus character
+                                    annotation = annotation.replace("-", " \u00B1 ");
+                                    var annWidth = 140;
+                                    if (annotation.length > 20) {
+                                        annWidth = 180;
+                                    } 
                                     // show the probe annotation
                                     svg.append("rect")
                                         .attr("x", -142)
                                         .attr("y", height - y(probeLocationPlot) - 24)
-                                        .attr("width", 140)
+                                        .attr("width", annWidth)
                                         .attr("height", 66)
                                         .attr("fill", "#fff")
                                         .attr("stroke", methylationLineColor)
@@ -1659,9 +1666,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                         .attr("y", height - y(probeLocationPlot) + 14)
                                         .attr("class", "probeInfo")
                                         .text("chr" + chromosome + ":" + position);
-                                    var annotation = queryResult["probeAnnotation"][position];
-                                    // replace the "-" character by the plus over minus character
-                                    annotation = annotation.replace("-", " \u00B1 ");
                                     svg.append("text")
                                         .attr("x", -136)
                                         .attr("y", height - y(probeLocationPlot) + 30)
@@ -1669,7 +1673,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                         .text(annotation);
                                     // add a multiplication character to indicate that the annotation info can be closed
                                     svg.append("text")
-                                        .attr("x", -20)
+                                        .attr("x", -142 + annWidth - 20)
                                         .attr("y", height - y(probeLocationPlot) - 4)
                                         .attr("class", "probeInfo clickable")
                                         .attr("font-size", "18px")
