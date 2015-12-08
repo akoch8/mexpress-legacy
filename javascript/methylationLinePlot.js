@@ -1636,7 +1636,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 .on("mouseup", function() {
                                     var annotation = queryResult["probeAnnotation"][position];
                                     // replace the "-" character by the plus over minus character
-                                    annotation = annotation.replace("-", " \u00B1 ");
+                                    annotation = annotation.replace(/-/g, " \u00B1 ");
                                     var annWidth = 140;
                                     if (annotation.length > 20) {
                                         annWidth = 180;
