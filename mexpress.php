@@ -76,13 +76,13 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                                         $query = "SELECT DISTINCT source, full_source_name FROM data_information";
                                         $result = mysqli_query($connection, $query);
                                         if (!$result){
-                                            echo '<p><strong>Could not connect to the database!</strong></p>';
+                                            echo "<p><strong>Could not connect to the database!</strong></p>";
                                         }
                                         $tumorSources = array();
                                         while ($row = mysqli_fetch_assoc($result)){
-                                            $source = $row['source'];
+                                            $source = $row["source"];
                                             $source = strtoupper($source);
-                                            $resp = $row['full_source_name'];
+                                            $resp = $row["full_source_name"];
                                             $tumorSources[$source] = $resp;
                                         }
                                         ksort($tumorSources);
@@ -90,7 +90,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                                             $fullSourceName = $value;
                                             if (strlen($fullSourceName) > 29){
                                                 $fullSourceName = substr($fullSourceName, 0, 26);
-                                                $fullSourceName = preg_replace('/ $/', "", $fullSourceName);
+                                                $fullSourceName = preg_replace("/ $/", "", $fullSourceName);
                                                 $fullSourceName = $fullSourceName."...";
                                             }
                                             echo "<div class='sampleSelectionElement'><span class='sourceName'>$key</span> <span class='fullSourceName' title='$value'>$fullSourceName<span></div>";
