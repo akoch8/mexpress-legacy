@@ -143,8 +143,8 @@ if (file_exists($savedFileName)){
         $genes = explode(';', $row['genes']);
         $annotation = explode(';', $row['annotation']);
         $annResult = array();
-        foreach ($genes as $index => $gene){
-            if ($gene === $hgnc_symbol){
+        foreach ($genes as $index => $gn){
+            if ($gn === $hgnc_symbol){
                 array_push($annResult, $annotation[$index]);
             }
         }
