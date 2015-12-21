@@ -1,6 +1,6 @@
 <?php
 
-require_once('connectionVariables.php');
+require_once("connectionVariables.php");
 $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
 
 $geneQuery = mysqli_real_escape_string($connection,trim($_GET["query"]));
@@ -33,7 +33,7 @@ if ($queryResult && mysqli_num_rows($queryResult) > 0){
 $jsonResult = json_encode($result);
 
 // zip the json object before sending it to the user
-if (function_exists('ob_gzhandler')) ob_start('ob_gzhandler');
+if (function_exists("ob_gzhandler")) ob_start("ob_gzhandler");
 else ob_start();
 echo $jsonResult;
 ob_end_flush();

@@ -1,9 +1,9 @@
 <?php
 
-require_once('connectionVariables.php');
+require_once("connectionVariables.php");
 $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
 
-$gene = mysqli_real_escape_string($connection,trim($_GET['gene']));
+$gene = mysqli_real_escape_string($connection,trim($_GET["gene"]));
 $sourceString = mysqli_real_escape_string($connection,trim($_GET["source"]));
 
 // check if the query result is already saved or not
@@ -18,14 +18,14 @@ if (file_exists($savedFileName)){
     
     $jsonData = file_get_contents($savedFileName);
     // zip the json object before sending it to the user
-    if (function_exists('ob_gzhandler')) ob_start('ob_gzhandler');
+    if (function_exists("ob_gzhandler")) ob_start("ob_gzhandler");
     else ob_start();
     echo $jsonData;
     ob_end_flush();
     
 } else {
     
-    $sourceArray = explode(' ', $sourceString);
+    $sourceArray = explode(" ", $sourceString);
     $source = "'".array_shift($sourceArray)."'";
     $fullSourceName = "'".implode(" ", $sourceArray)."'";
     
@@ -46,15 +46,15 @@ if (file_exists($savedFileName)){
 
     $transcripts = array();
     while ($row = mysqli_fetch_assoc($queryResult)){
-        $ensembl_id = $row['ensembl_id'];
-        $hgnc_symbol = $row['hgnc_symbol'];
-        $chromosome = $row['chr'];
-        $geneStart = $row['gene_start'];
-        $geneEnd = $row['gene_end'];
-        $strand = $row['strand'];
-        $transcriptName = $row['transcript_id'];
-        $transcriptStart = $row['transcript_start'];
-        $transcriptEnd = $row['transcript_end'];
+        $ensembl_id = $row["ensembl_id"];
+        $hgnc_symbol = $row["hgnc_symbol"];
+        $chromosome = $row["chr"];
+        $geneStart = $row["gene_start"];
+        $geneEnd = $row["gene_end"];
+        $strand = $row["strand"];
+        $transcriptName = $row["transcript_id"];
+        $transcriptStart = $row["transcript_start"];
+        $transcriptEnd = $row["transcript_end"];
         $transcripts[$transcriptName] = array("start" => $transcriptStart, "end" => $transcriptEnd, "exons" => array());
     }
     
@@ -87,10 +87,10 @@ if (file_exists($savedFileName)){
     
     $exons = array();
     while ($row = mysqli_fetch_assoc($queryResult)){
-        $transcript = $row['transcript_id'];
-        $exonStart = $row['exon_start'];
-        $exonEnd = $row['exon_end'];
-        $exonRank = $row['exon_rank'];
+        $transcript = $row["transcript_id"];
+        $exonStart = $row["exon_start"];
+        $exonEnd = $row["exon_end"];
+        $exonRank = $row["exon_rank"];
         $transcripts[$transcript]["exons"][$exonRank] = array("start" => $exonStart, "end" => $exonEnd);
     }
     
@@ -101,8 +101,8 @@ if (file_exists($savedFileName)){
     $cpgislands = array();
     if ($queryResult){
         while ($row = mysqli_fetch_assoc($queryResult)){
-            $cpgiStart = $row['chromStart'];
-            $cpgiEnd = $row['chromEnd'];
+            $cpgiStart = $row["chromStart"];
+            $cpgiEnd = $row["chromEnd"];
             $cpgislands[] = array("start" => $cpgiStart, "end" => $cpgiEnd);
         }
     }
@@ -138,10 +138,10 @@ if (file_exists($savedFileName)){
     $probeIds = array();
     $probeAnnotation = array();
     while ($row = mysqli_fetch_assoc($probeQueryResult)){
-        $probeId = $row['probeID'];
-        $location = $row['mapInfo'];
-        $genes = explode(';', $row['genes']);
-        $annotation = explode(';', $row['annotation']);
+        $probeId = $row["probeID"];
+        $location = $row["mapInfo"];
+        $genes = explode(";", $row["genes"]);
+        $annotation = explode(";", $row["annotation"]);
         $annResult = array();
         foreach ($genes as $index => $gn){
             if ($gn === $hgnc_symbol){
@@ -200,15 +200,15 @@ if (file_exists($savedFileName)){
     
     while ($row = mysqli_fetch_assoc($dataQueryResult)){
         
-        $location = $row['mapInfo'];
+        $location = $row["mapInfo"];
         $methylationData = array_slice($row, 3);
         
         foreach ($methylationData as $key => $value){
             
             if ($value === NULL){
-                $data['methylationData'][$key][$location] = "null";
+                $data["methylationData"][$key][$location] = "null";
             } else {
-                $data['methylationData'][$key][$location] = round($value, 3);
+                $data["methylationData"][$key][$location] = round($value, 3);
             }
             
         }
@@ -246,7 +246,7 @@ if (file_exists($savedFileName)){
         $result = array_slice($result, 1);
         #arsort($result); # sort the expression data (high to low)
         foreach ($result as $key => $value){
-            $data['expressionData'][$key] = round(log($value + 1), 2);
+            $data["expressionData"][$key] = round(log($value + 1), 2);
         }
         
     }
@@ -265,21 +265,21 @@ if (file_exists($savedFileName)){
         
         while ($row = mysqli_fetch_assoc($queryResult)){
             
-            $patient = $row['patient_barcode'];
-            $data['annotation'][$patient] = array();
-            unset($row['patient_barcode']);
+            $patient = $row["patient_barcode"];
+            $data["annotation"][$patient] = array();
+            unset($row["patient_barcode"]);
             foreach ($row as $key => $value){
-                $data['annotation'][$patient][$key] = $value;
+                $data["annotation"][$patient][$key] = $value;
             }
             
             $numberOfAnnotationFields = count($row);
             
         }
         
-        $data['annotation']['numberOfAnnotationFields'] = $numberOfAnnotationFields;
+        $data["annotation"]["numberOfAnnotationFields"] = $numberOfAnnotationFields;
         
     } else {
-        $data['annotation'] = "no_annotation";
+        $data["annotation"] = "no_annotation";
     }
     
     ##
@@ -294,21 +294,21 @@ if (file_exists($savedFileName)){
         
         while ($row = mysqli_fetch_assoc($queryResult)){
             
-            $sample = $row['sample'];
-            $data['slide'][$sample] = array();
-            unset($row['sample']);
+            $sample = $row["sample"];
+            $data["slide"][$sample] = array();
+            unset($row["sample"]);
             foreach ($row as $key => $value){
-                $data['slide'][$sample][$key] = $value;
+                $data["slide"][$sample][$key] = $value;
             }
             
             $numberOfSlideFields = count($row);
             
         }
         
-        $data['slide']['numberOfSlideFields'] = $numberOfSlideFields;
+        $data["slide"]["numberOfSlideFields"] = $numberOfSlideFields;
         
     } else {
-        $data['slide'] = "no_data";
+        $data["slide"] = "no_data";
     }
     
     ##
@@ -325,8 +325,8 @@ if (file_exists($savedFileName)){
             
             while ($row = mysqli_fetch_assoc($queryResult)){
                 
-                $sample = $row['sample'];
-                $data['pam50'][$sample] = $row['subtype'];
+                $sample = $row["sample"];
+                $data["pam50"][$sample] = $row["subtype"];
                 
             }
             
@@ -366,7 +366,7 @@ if (file_exists($savedFileName)){
     chmod($savedFileName, 0766);
     
     // zip the json object before sending it to the user
-    if (function_exists('ob_gzhandler')) ob_start('ob_gzhandler');
+    if (function_exists("ob_gzhandler")) ob_start("ob_gzhandler");
     else ob_start();
     echo $jsonData;
     ob_end_flush();

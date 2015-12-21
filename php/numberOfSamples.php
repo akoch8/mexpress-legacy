@@ -1,11 +1,11 @@
 <?php
 
-require_once('connectionVariables.php');
+require_once("connectionVariables.php");
 $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
 
 $sourceString = mysqli_real_escape_string($connection,trim($_GET["source"]));
 
-$sourceArray = explode(' ', $sourceString);
+$sourceArray = explode(" ", $sourceString);
 $source = "'".array_shift($sourceArray)."'";
 $fullSourceName = "'".implode(" ", $sourceArray)."'";
 
