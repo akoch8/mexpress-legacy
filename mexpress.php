@@ -8,14 +8,14 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
-        <meta name="description" content="MEXPRESS is a web tool for the visualization of the TCGA expression, DNA methylation and clinical data, as well as the relationships between them.">
+        <meta name="description" content="Visualization and integration of TCGA data.">
         <!-- START facebook open graph meta tags -->
         <meta property="og:title" content="MEXPRESS"/>
         <meta property="og:url" content="http://mexpress.be"/>
         <meta property="og:site_name" content="MEXPRESS"/>
         <meta property="og:type" content="website"/>
         <meta property="og:image" content="http://mexpress.be/images/plot.png"/>
-        <meta property="og:description" content="MEXPRESS is a web tool for the visualization of the TCGA expression, DNA methylation and clinical data, as well as the relationships between them."/>
+        <meta property="og:description" content="Visualization and integration of TCGA data."/>
         <!-- END facebook open graph meta tags -->
         <title>MEXPRESS</title>
         <link rel="icon" type="image/png" href="images/m_icon.png">
