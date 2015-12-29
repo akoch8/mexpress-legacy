@@ -12,3 +12,5 @@ This repository contains the back and front-end code to make MEXPRESS run. It al
 The `setup` folder contains two SQL scripts you can use to recreate the MEXPRESS database. The file `createDatabase.sql` contains the SQL statements to create the database `mexpress` which contains the table `data_information`. Once you created this database, you can add the different annotation tables (gene, exon and transcript annotation data for example) using the file `annotationTables.sql` (which has been zipped in the `setup` folder). Now that the database is ready, you can use the batch scripts to fill it up with TCGA data.
 
 Once you have created a database and before running the batch scripts you must add your own MySQL login details to the `uploadTCGAdata` script. Before you can actually run MEXPRESS, you also have to fill in your database details in the file `php/connectionVariables.php`.
+
+Please get in touch if you have any questions or comments! alexander.koch@ugent.be
