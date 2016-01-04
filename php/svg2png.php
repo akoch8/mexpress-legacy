@@ -25,7 +25,7 @@ if (!file_exists($pngFileName) || !file_exists($svgFileName)){
     chmod($svgFileName, 0766);
     
     // run the inkscape command to convert the svg file to a png image
-    exec("/Applications/Inkscape.app/Contents/Resources/bin/inkscape --export-png=".escapeshellarg($pngFileName)." --export-background=white  --export-dpi=300 ".escapeshellarg($svgFileName));
+    exec("inkscape --export-png=".escapeshellarg($pngFileName)." --export-background=white  --export-dpi=300 ".escapeshellarg($svgFileName));
     chmod($pngFileName, 0766);
     
 }
