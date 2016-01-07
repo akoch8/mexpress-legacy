@@ -5,8 +5,8 @@ body {
 header {
     width: 100%;
     height: 306px;
-    border-bottom: 1em solid #B0D6F7;
-    background: #4999DE;
+    border-bottom: 1em solid #b0d6f7;
+    background: #4999de;
     text-align: center;
 }
 header img {
@@ -29,10 +29,10 @@ header a {
     padding-left: 20px; /* this left padding helps to center the main title (was thrown off because of white space on the right side of the last letter) */
     font-family: 'Open Sans', arial, helvetica, sans-serif;
     font-size: 4em;
-    color: #FFFFFF;
+    color: #fff;
     text-transform: uppercase;
     letter-spacing: 0.3em;
-    text-shadow: 0 2px 0 #2567A1;
+    text-shadow: 0 2px 0 #2567a1;
 }
 .mainTitle .letterE {
     margin-left: -0.02em;
@@ -51,32 +51,32 @@ header a {
     -webkit-font-smoothing: antialiased;
     font-size: 2em;
     color: rgba(255,255,255,.9);
-    text-shadow: 0 2px 0 #2567A1;
+    text-shadow: 0 2px 0 #2567a1;
 }
 
 .content {
-    width: 100%;
+    width: 60%;
+    max-width: 1000px;
     margin: 120px auto 0 auto;
     font-size: 18px;
     text-align: left;
 }
 
-h1, h2, h3 {
+h2, h3, h4 {
     font-weight: 700;
-    color: #4999DE;
+    color: #4999de;
+    margin-top: 2em;
+    margin-bottom: 0.5em;
 }
-h1 {
+h2 {
     font-size: 2.2em;
     letter-spacing: 0.04em;
 }
-h2 {
-    margin-top: 40px;
+h3 {
     font-size: 1.2em;
     letter-spacing: 0.02em;
 }
-h3 {
-    margin-top: 30px;
-    margin-bottom: 20px;
+h4 {
     font-size: 1em;
 }
 
@@ -89,9 +89,6 @@ section {
     max-width: 680px;
     margin: 30px auto 30px auto;
 }
-section h1 {
-    margin-top: 50px;
-}
 
 a {
     border-bottom: 1px solid rgba(0, 0, 0, 0.7);
@@ -103,14 +100,16 @@ a:visited {
 
 
 figure {
-    width: 60%;
-    max-width: 1000px;
     margin: 40px auto;
 }
 figure img {
     width: 100%;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
     margin-bottom: 20px;
-    box-shadow: 0 2px 10px 2px #F3F3F3;
+    box-shadow: 0 2px 10px 2px #f3f3f3;
 }
 
 section figure {
@@ -121,16 +120,26 @@ section figure img {
     box-shadow: none;
 }
 
-.blue {
+.blue, .grey {
     padding: 4px 10px 4px 10px;
-    border-bottom: 2px solid #428BCA;
-    background: #4999DE;
     font-size: 0.8em;
-    color: #FFF;
+}
+.blue {
+    border-bottom: 2px solid #428bca;
+    background: #4999de;
+    color: #fff;
+}
+.grey {
+    border-bottom: 2px solid #ddd;
+    background: #eee;
+    color: #aaa;
+}
+.blue:hover, .grey:hover {
+    cursor: text;
 }
 
 .orange {
-    color: #F59322;
+    color: #f59322;
 }
 
 .value {
@@ -144,21 +153,21 @@ a.startButton {
     width: 50%;
     margin: 80px auto;
     padding: 8px 16px 8px 16px;
-    border-bottom: 4px solid #428BCA;
-    background: #4999DE;
+    border-bottom: 4px solid #428bca;
+    background: #4999de;
     font-family: 'Open Sans', arial, helvetica, sans-serif;
     font-size: 1em;
-    color: #FFFFFF;
+    color: #fff;
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    text-shadow: 0 2px 0 #2567A1;
+    text-shadow: 0 2px 0 #2567a1;
 }
 a.startButton:visited {
-    color: #FFF;
+    color: #fff;
 }
 a.startButton:active {
-    border-top: 4px solid #428BCA;
+    border-top: 4px solid #428bca;
     border-bottom: none;
 }
 

@@ -3,14 +3,12 @@
     <head>
         <meta charset="utf-8"/>
         <meta name="description" content="Visualization and integration of TCGA data.">
-        <!-- START facebook open graph meta tags -->
         <meta property="og:title" content="MEXPRESS"/>
         <meta property="og:url" content="http://mexpress.be"/>
         <meta property="og:site_name" content="MEXPRESS"/>
         <meta property="og:type" content="website"/>
         <meta property="og:image" content="http://mexpress.be/images/plot.png"/>
         <meta property="og:description" content="Visualization and integration of TCGA data."/>
-        <!-- END facebook open graph meta tags -->
         <title>mexpress</title>
         <link rel="icon" type="image/png" href="images/m_icon.png">
         <link rel="stylesheet" type="text/css" href="css/global.css">
@@ -39,26 +37,26 @@
             </header>
             <div class="content">
                 <section>
-                    <h1>What?</h1>
+                    <h2>What?</h2>
                     <p>
-                        <span class="mexpress">MEXPRESS</span> is a data visualization tool designed for the easy visualization of <a href="https://tcga-data.nci.nih.gov/tcga/" target="_blank" title="This link will take you to the TCGA website.">TCGA</a> expression, DNA methylation and clinical data, as well as the relationships between them. You can find all the details in our <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank">publication</a>.
+                        <span class="mexpress">MEXPRESS</span> is a data visualization tool designed for the easy visualization of <a href="https://tcga-data.nci.nih.gov/tcga/" target="_blank" title="This link will take you to the TCGA website.">TCGA</a> expression, DNA methylation and clinical data, as well as the relationships between them.
                     </p>
                 </section>
                 <section>
-                    <h1>How?</h1>
+                    <h2>How?</h2>
                     <p>
                         Easy! Just pick a gene and cancer type you are interested in and MEXPRESS will show you the corresponding expression, DNA methylation and clinical data, as well as the relationship between these data sets.
                     </p>
-                    <h2>Getting started</h2>
+                    <h3>Getting started</h3>
                     <p>
                         This is the MEXPRESS start screen:
                     </p>
                 </section>
                 <figure>
-                    <img alt="MEXPRESS start screen" src="images/startScreen.png"/>
+                    <img alt="This the MEXPRESS start screen." src="images/mexpressStartScreen.png"/>
                 </figure>
                 <section>
-                    <h2>Selecting data</h2>
+                    <h3>Selecting data</h3>
                     <p>
                         On the left side you will notice the text input field where you can enter a gene name (both HGNC symbols and Ensembl gene IDs are recognized) as well as the list of cancer types you can choose from.
                     </p>
@@ -68,10 +66,10 @@
                     </p>
                 </section>
                 <figure>
-                    <img alt="ready to plot" src="images/readyToPlot.png"/>
+                    <img alt="MEXPRESS is now ready to plot." src="images/mexpressReadyToPlot.png"/>
                 </figure>
                 <section>
-                    <h2>Creating the plot</h2>
+                    <h3>Creating the plot</h3>
                     <p>
                         All that's left to do after selecting a gene and cancer type is clicking the <span class="blue">plot</span> button and the data you selected will be visualised.
                         Samples are arranged from left to right, while the different data types (clinical, expression and methylation) are arranged from the top to the bottom of the plot.
@@ -87,10 +85,19 @@
                     </p>
                 </section>
                 <figure>
-                    <img alt="final MEXPRESS plot" src="images/plot.png"/>
+                    <img alt="This is the final MEXPRESS plot." src="images/mexpressPlot.png"/>
                 </figure>
                 <section>
-                    <h2>About the plot</h2>
+                    <p>
+                        If you would like to emphasize the probes that are located in a gene's promoter region, you click the <span class="grey">highlight promoter probes</span> button.
+                        This will turn the highlighting of the promoter probes on as you can see in the image below.
+                    </p>
+                </section>
+                <figure>
+                    <img alt="Highlighting the promoter probes." src="images/mexpressPromoterHighlighted.png"/>
+                </figure>
+                <section>
+                    <h3>About the plot</h3>
                     <p>
                         At the top of the figure you find the HGNC gene symbol, the Ensembl gene ID and the genomic location of GSTP1.
                         The gene symbol link will open the <a href="http://www.genecards.org" target="_blank">GeneCards</a> page about GSTP1 in a new tab or window.
@@ -100,17 +107,17 @@
                         From top to bottom you will see the clinical data, the expression values and the methylation data.
                         Let's take a detailed look at each part.
                     </p>
-                    <h3>expression data</h3>
+                    <h4>expression data</h4>
                     <figure>
-                        <img alt="expression data" src="images/expression.png"/>
+                        <img alt="A closer look at the expression data." src="images/mexpressExpression.png"/>
                     </figure>
                     <p>
                         The height of the orange line represents the logarithm of the level 3 RNA-sequencing data in TCGA (normalized RNASeqV2 values per gene).
                         The expression data forms the basis of the whole plot, because the samples are ranked based on their expression value for the gene we selected with the highest expression on the left side and the lowest on the right.
                     </p>
-                    <h3>methylation data</h3>
+                    <h4>methylation data</h4>
                     <figure>
-                        <img alt="methylation data" src="images/methylation.png"/>
+                        <img alt="A closer look at the methylation data." src="images/mexpressMethylation.png"/>
                     </figure>
                     <p>
                         On the left hand side, you see the GSTP1 gene, two CpG islands (in green) and the different GSTP1 transcripts.
@@ -125,15 +132,27 @@
                     <p>
                         Just as for the expression data, the samples are ranked along the x axis (they were ordered based on their GSTP1 expression value).
                         Thin blue lines connect the probes to their respective genomic locations.
+                        Hovering your mouse cursor over a methylation data plot will highlight the corresponding probe on the left hand side and the name of the probe will be shown.
+                        You can fix the highlighting of a probe by clicking on its data plot.
+                        Clicking the same data plot a second time will clear the highlighting.
                     </p>
+                    <figure>
+                        <img alt="Highlighting a methylation probe." src="images/mexpressProbeHighlighted.png"/>
+                    </figure>
+                    <p>
+                        Once you've fixed a probe's highlighting by clicking on the data plot, you can click on the probe's name to reveal the probe's genomic location and annotation.
+                    </p>
+                    <figure>
+                        <img alt="Revealing a probe's annotation." src="images/mexpressProbeAnnotation.png"/>
+                    </figure>
                     <p>
                         The values on the far right represent the Pearson product&#45;moment correlation coefficient between the methylation values for a probe and the expression values.
                         For GSTP1 you can see that there are quite a few probes with a strong negative correlation between methylation and expression, indicating that GSTP1 expression might be controlled through DNA methylation (which has already been described, see <a href="http://www.nature.com/onc/journal/v18/n6/full/1202415a.html" target="_blank">Millar <em>et al.</em>, 1999</a>).
                         As the plot's legend explains, the asterisks give you an indication of the significance of the correlations.
                     </p>
-                    <h3>clinical data</h3>
+                    <h4>clinical data</h4>
                     <figure>
-                        <img alt="clinical data" src="images/clinical.png"/>
+                        <img alt="A closer look at the clinical data." src="images/mexpressClinical.png"/>
                     </figure>
                     <p>
                         For every cancer type, the most relevant clinical parameters have been extracted from TCGA.
@@ -167,7 +186,7 @@
                     See <a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines" target="_blank">http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines</a> for additional information.</em>
                 </p>
                 <p>
-                    If you'd like to use this tool (and we hope you do!), please cite our paper <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank">MEXPRESS: visualizing expression, DNA methylation and clinical TCGA data</a>.
+                    If you'd like to use a MEXPRESS plot in your publication (and we hope you do!), please cite our paper <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank">MEXPRESS: visualizing expression, DNA methylation and clinical TCGA data</a>.
                 </p>
                 <p>
                     Developed by Alexander Koch &#64; <a href="http://www.biobix.be" target="_blank">BIOBIX</a> &#8211; Ghent University
@@ -176,7 +195,7 @@
                     Contact: <a href="mailto:alexander.koch@ugent.be?Subject=MEXPRESS">alexander.koch@ugent.be</a>
                 </p>
                 <p>
-                    <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2015
+                    <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2016
                 </p>
             </footer>
         </div>
