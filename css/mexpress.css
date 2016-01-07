@@ -10,8 +10,8 @@ header {
     top: 0;
     width: 100%;
     height: 60px;
-    border-bottom: 0.5em solid #B0D6F7;
-    background: #4999DE;
+    border-bottom: 0.5em solid #b0d6f7;
+    background: #4999de;
 }
 header img {
     position: relative;
@@ -34,16 +34,16 @@ header img:hover {
     display: inline-block;
     font-family: 'Open Sans', arial, helvetica, sans-serif;
     font-size: 1.5em;
-    color: #FFFFFF;
+    color: #fff;
     text-transform: uppercase;
     letter-spacing: 0.3em;
-    text-shadow: 0 1px 0 #2567A1;
+    text-shadow: 0 1px 0 #2567a1;
     transition: text-shadow 0.2s;
     -webkit-transition: text-shadow 0.2s;
 }
 .bannerTitle:hover {
-    color: #FFF;
-    text-shadow: 0 2px 0 #2567A1;
+    color: #fff;
+    text-shadow: 0 2px 0 #2567a1;
 }
 
 .bannerText {
@@ -59,7 +59,7 @@ header img:hover {
     height: 1.6em;
     margin-left: 16px;
     margin-right: 16px;
-    border-left: 1px solid #FFF;
+    border-left: 1px solid #fff;
 }
 
 a.bannerLink {
@@ -67,17 +67,14 @@ a.bannerLink {
     bottom: 2px;
     margin-right: 20px;
     padding-left: 1px;
-    border-bottom: 1px solid #FFF;
+    border-bottom: 1px solid #fff;
     font-size: 1.1em;
     font-weight: 900;
-    color: #FFF;
+    color: #fff;
     text-decoration: none;
 }
-a.bannerLink:visited {
-    color: #FFF;
-}
-a.bannerLink:hover {
-    color: #FFF;
+a.bannerLink:visited, a.bannerLink:hover {
+    color: #fff;
 }
 
 .mainContent {
@@ -86,11 +83,11 @@ a.bannerLink:hover {
     white-space: nowrap;
 }
 .mainContent a {
-    border-bottom: 1px solid #3A3A3A;
-    color: #3A3A3A;
+    border-bottom: 1px solid #3a3a3a;
+    color: #3a3a3a;
 }
 .mainContent a:visited {
-    color: #3A3A3A;
+    color: #3a3a3a;
 }
 
 .userInput {
@@ -125,7 +122,7 @@ a.bannerLink:hover {
     overflow-x: hidden;
     max-height: 300px;
     margin: 10px 0;
-    background: #F8F8F8;
+    background: #f8f8f8;
 }
 .sampleSelectionList::-webkit-scrollbar {
     -webkit-appearance: none;
@@ -135,30 +132,30 @@ a.bannerLink:hover {
 }
 .sampleSelectionList::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    border: 0px solid #F8F8F8;
-    background: #DDD;
+    border: 0px solid #f8f8f8;
+    background: #ddd;
 }
 .sampleSelectionList:hover::-webkit-scrollbar:vertical {
     width: 5px;
 }
 .sampleSelectionList:hover::-webkit-scrollbar-thumb {
-    background: #CCC;
+    background: #ccc;
 }
 
 .sampleSelectionElement {
     padding: 6px 0 6px 10px;
-    border-bottom: 1px solid #CCC;
-    color: #AAA;
+    border-bottom: 1px solid #ccc;
+    color: #aaa;
 }
 .sampleSelectionElement:last-of-type {
     border-bottom: none;
 }
 .sampleSelectionElement:hover {
     cursor: default;
-    background: #F2F2F2;
+    background: #f2f2f2;
 }
 .sampleSelectionElement:active {
-    background: #CFCFCF;
+    background: #cfcfcf;
 }
 
 .sourceName {
@@ -169,7 +166,7 @@ a.bannerLink:hover {
 .fullSourceName {
     margin-left: 8px;
     font-size: 12px;
-    color: #AAA;
+    color: #aaa;
     font-weight: normal;
     text-shadow: none;
 }
@@ -183,8 +180,8 @@ a.bannerLink:hover {
     min-height: 600px;
     margin: 120px 0 40px 0;
     padding: 0;
-    border-bottom: 4px solid #EFEFEF;
-    background: #F6F6F6;
+    border-bottom: 4px solid #efefef;
+    background: #f6f6f6;
     background-image: url("../images/m_bw.png");
     background-position: -40% 30%;
     background-repeat: no-repeat;
@@ -249,16 +246,16 @@ input[type="submit"].inputButton {
     padding: 8px 16px 8px 16px;
     outline: none;
     border: none;
-    border-bottom: 4px solid #428BCA;
+    border-bottom: 4px solid #428bca;
     box-shadow: none;
     background: none;
-    background-color: #4999DE;
+    background-color: #4999de;
     font-size: 18px;
-    color: #FFFFFF;
+    color: #fff;
 }
 input[type="submit"].inputButton:active {
     outline: none;
-    border-top: 4px solid #428BCA;
+    border-top: 4px solid #428bca;
     border-bottom: none;
 }
 input[type="submit"].inputButton:hover {
@@ -266,17 +263,17 @@ input[type="submit"].inputButton:hover {
 }
 input[type="submit"].inactive {
     pointer-events: none;
-    border-bottom: 4px solid #A7BED1;
-    background-color: #BFD1E0;
+    border-bottom: 4px solid #a7bed1;
+    background-color: #bfd1e0;
 }
 input[type="submit"].inactive:active {
     border: none;
-    border-bottom: 4px solid #A7BED1;
-    background-color: #BFD1E0;
+    border-bottom: 4px solid #a7bed1;
+    background-color: #bfd1e0;
 }
 input[type="submit"].inactive:hover {
     cursor: default;
-    background-color: #BFD1E0;
+    background-color: #bfd1e0;
 }
 
 .download {
@@ -293,17 +290,17 @@ input[type="submit"].inactive:hover {
     width: 50px;
     margin-left: 10px;
     padding: 2px 0;
-    border-bottom: 4px solid #428BCA;
-    background-color: #4999DE;
+    border-bottom: 4px solid #428bca;
+    background-color: #4999de;
     font-size: 12px;
-    color: #FFF;
+    color: #fff;
     text-align: center;
 }
 
 .downloadButton:active {
-    border-top: 4px solid #428BCA;
+    border-top: 4px solid #428bca;
     border-bottom: none;
-    color: #FFF;
+    color: #fff;
 }
 .downloadButton:hover {
     cursor: pointer;
@@ -322,11 +319,11 @@ input[type="submit"].inactive:hover {
     vertical-align: middle;
     margin-left: 10px;
     padding: 3px 6px 3px 6px;
-    border-bottom: 4px solid #DEF0FF;
-    background: #E8F4FF;
+    border-bottom: 4px solid #def0ff;
+    background: #e8f4ff;
     white-space: normal;
     font-size: 0.8em;
-    color: #428BCA;
+    color: #428bca;
 }
 
 .promoterSelectionButton {
@@ -349,11 +346,11 @@ input[type="submit"].inactive:hover {
 }
 
 .selectedSample {
-    background: #E8E8E8;
-    color: #3A3A3A;
+    background: #e8e8e8;
+    color: #3a3a3a;
 }
 .selectedSample:hover {
-    background: #E8E8E8;
+    background: #e8e8e8;
 }
 
 .clickable:hover {
@@ -369,9 +366,9 @@ input[type="submit"].inactive:hover {
 .autocomplete-suggestions {
     max-height: 350px;
     margin: 0px;
-    border: 1px solid #B0D6F7;
+    border: 1px solid #b0d6f7;
     border-top: none;
-    background: #FFF;
+    background: #fff;
     cursor: default;
     text-align: left;
     overflow: auto;
@@ -382,7 +379,7 @@ input[type="submit"].inactive:hover {
 }
 
 .autocomplete-selected {
-    background: #F8F8F8;
+    background: #f8f8f8;
 }
 
 .autocomplete-suggestion {
@@ -390,7 +387,7 @@ input[type="submit"].inactive:hover {
 }
 
 .autocomplete-suggestion strong {
-    color: #4999DE;
+    color: #4999de;
 }
 
 footer {
