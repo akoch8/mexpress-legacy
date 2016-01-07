@@ -51,6 +51,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                         <a href="/" class="bannerTitle">MEXPRESS</a>
                         <div class="separator"></div>
                         <a href="about" class="bannerLink">How to use MEXPRESS</a>
+                        <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank" class="bannerLink">Publication</a>
                     </div>
                 </div>
             </header>
