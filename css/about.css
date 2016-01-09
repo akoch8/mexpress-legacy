@@ -17,7 +17,7 @@ header img {
     transition: top 0.15s;
 }
 header img:hover {
-    top: 0px;
+    top: 0;
 }
 header a {
     border: none;

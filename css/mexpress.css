@@ -132,7 +132,7 @@ a.bannerLink:visited, a.bannerLink:hover {
 }
 .sampleSelectionList::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    border: 0px solid #f8f8f8;
+    border: 0 solid #f8f8f8;
     background: #ddd;
 }
 .sampleSelectionList:hover::-webkit-scrollbar:vertical {
@@ -365,7 +365,7 @@ input[type="submit"].inactive:hover {
 
 .autocomplete-suggestions {
     max-height: 350px;
-    margin: 0px;
+    margin: 0;
     border: 1px solid #b0d6f7;
     border-top: none;
     background: #fff;

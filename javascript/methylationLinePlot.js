@@ -52,30 +52,33 @@ function sortData(queryResult, sorter) {
     // sort the sample names based on the sorter
     var sortedSamples = [];
     var samples = [];
-    
-    for (var sample in queryResult["expressionData"]) {
+    var sample, element, s, p, value, i;
+
+    for (sample in queryResult["expressionData"]) {
         samples.push(sample);
     }
     var remainingSamples = samples;
     
+    var sampleList = [];
+
     if (sorter === "expressionData") {
         var expressionList = [];
-        for (var sample in queryResult["expressionData"]) {
+        for (sample in queryResult["expressionData"]) {
             var expressionValue = queryResult["expressionData"][sample];
             expressionList.push({key:sample, val:expressionValue});
         }
-        expressionList.sort(function(a, b) { return b.val-a.val });
-        for (var element in expressionList) {
+        expressionList.sort(function(a, b) { return b.val-a.val; });
+        for (element in expressionList) {
             sortedSamples.push(expressionList[element].key);
         }
     } else if (sorter === "sample type") {
-        var sampleList = [];
-        for (var sample in queryResult["expressionData"]) {
+        sampleList = [];
+        for (sample in queryResult["expressionData"]) {
             var code = sample.replace(/^.+_(\d\d)$/, "$1");
             sampleList.push({key:sample, val:code});
         }
-        sampleList.sort(function(a, b) { return b.val-a.val });
-        for (var element in sampleList) {
+        sampleList.sort(function(a, b) { return b.val-a.val; });
+        for (element in sampleList) {
             sortedSamples.push(sampleList[element].key);
         }
     }
@@ -91,10 +94,10 @@ function sortData(queryResult, sorter) {
         }
     }*/
     else if (sorter === "PAM50 subtype") {
-        var sampleList = [];
+        sampleList = [];
         var missingSamples = [];
-        for (var s in samples) {
-            var sample = samples[s];
+        for (s in samples) {
+            sample = samples[s];
             if (sample in queryResult["pam50"]) {
                 sampleList.push({key:sample, val:queryResult["pam50"][sample]});
             } else {
@@ -114,28 +117,31 @@ function sortData(queryResult, sorter) {
             }
             
         });
-        for (var element in sampleList) {
+        for (element in sampleList) {
             sortedSamples.push(sampleList[element].key);
         }
         sortedSamples = sortedSamples.concat(missingSamples);
     } else {
         // check whether the sorter is part of the patient annotation or the slide annotation
+        var patientExample, slideExample;
         for (p in queryResult["annotation"]) {
-            var patientExample = queryResult["annotation"][p];
+            patientExample = queryResult["annotation"][p];
             break;
         }
         for (s in queryResult["slide"]) {
-            var slideExample = queryResult["slide"][s];
+            slideExample = queryResult["slide"][s];
             break;
         }
+
+        var selectedAnnotation, annotationList, nullValues;
         if (sorter in patientExample) {
-            var selectedAnnotation = "annotation";
-            var annotationList = [];
-            var nullValues = [];
-            for (var s in queryResult[selectedAnnotation]) {
-                if (s != "numberOfAnnotationFields") {
-                    var value = queryResult[selectedAnnotation][s][sorter];
-                    if (value !== null) {
+            selectedAnnotation = "annotation";
+            annotationList = [];
+            nullValues = [];
+            for (s in queryResult[selectedAnnotation]) {
+                if (s !== "numberOfAnnotationFields") {
+                    value = queryResult[selectedAnnotation][s][sorter];
+                    if (value !== undefined && value !== null) {
                         value = +value;
                         annotationList.push({key:s, val:value});
                     } else {
@@ -143,19 +149,19 @@ function sortData(queryResult, sorter) {
                     }
                 }
             }
-            annotationList.sort(function(a, b) { return b.val-a.val });
+            annotationList.sort(function(a, b) { return b.val-a.val; });
             annotationList = annotationList.concat(nullValues);
-            for (var element in annotationList) {
+            for (element in annotationList) {
                 var patient = annotationList[element].key;
                 var re = RegExp(patient);
                 // find the samples that matches the patient id
                 // take the first match and remove it from the samples array
                 // (it doesn't matter which sample we take because the annotation value will be the same for all samples that belong to one patient)
-                for  (var i = samples.length-1; i >= 0; i--) {
+                for  (i = samples.length-1; i >= 0; i--) {
                     // loop through the samples array backwards, this will avoid messing up the indexes of the remainingSamples array (which caused certain samples to be skipped)
                     var sampleToCheck = samples[i];
                     var res = sampleToCheck.match(re);
-                    if (res != null) {
+                    if (res !== null) {
                         sortedSamples.push(sampleToCheck);
                         var position = $.inArray(sampleToCheck, remainingSamples);
                         remainingSamples.splice(position, 1);
@@ -164,13 +170,13 @@ function sortData(queryResult, sorter) {
             }
             sortedSamples = sortedSamples.concat(remainingSamples);
         } else if (sorter in slideExample) {
-            var selectedAnnotation = "slide";
-            var annotationList = [];
-            var nullValues = [];
-            for (var s in queryResult[selectedAnnotation]) {
+            selectedAnnotation = "slide";
+            annotationList = [];
+            nullValues = [];
+            for (s in queryResult[selectedAnnotation]) {
                 if (s !== "numberOfSlideFields") {
-                    var value = queryResult[selectedAnnotation][s][sorter];
-                    if (value !== null) {
+                    value = queryResult[selectedAnnotation][s][sorter];
+                    if (value !== undefined && value !== null) {
                         value = +value;
                         annotationList.push({key:s, val:value});
                     } else {
@@ -178,11 +184,11 @@ function sortData(queryResult, sorter) {
                     }
                 }
             }
-            annotationList.sort(function(a, b) { return b.val-a.val });
+            annotationList.sort(function(a, b) { return b.val-a.val; });
             annotationList = annotationList.concat(nullValues);
-            for (var element in annotationList) {
-                var sample = annotationList[element].key;
-                for (var i = samples.length - 1; i >= 0; i--) {
+            for (element in annotationList) {
+                sample = annotationList[element].key;
+                for (i = samples.length - 1; i >= 0; i--) {
                     if (samples[i] === sample) {
                         sortedSamples.push(sample);
                         samples.splice(i, 1);
@@ -202,15 +208,15 @@ function updatePlot(queryResult, gene, source, numberOfSamples, sorter) {
     $(".plotWindow").empty();
     createPlot(queryResult, gene, source, numberOfSamples, sorter);
     
-};
+}
 
 function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
-    
+
     // general plotting variables:
     // dimensions:
-    windowWidth = $(window).width();
-    inputWidth = $('.userInput').outerWidth();
-    plotWidth = windowWidth - inputWidth - 28;
+    var windowWidth = $(window).width();
+    var inputWidth = $('.userInput').outerWidth();
+    var plotWidth = windowWidth - inputWidth - 28;
     var sampleRowHeight = 18;
     var annotationRowHeight = 14;
     var geneWidth = 4;
@@ -226,7 +232,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var exonColor = "#FFC842";
     var scaleBarColor = "#999";
     var probeLocationLineColor = "#ACD2F2";
-    var selectedProbeColor = "#1A70BA"
+    var selectedProbeColor = "#1A70BA";
     var missingValueColor = "#F9F9F9";
     var expressionFillColor = "#FFD57A";
     var expressionLineColor = "#F59322";
@@ -260,7 +266,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         "LumB": "#37AC19",
         //"LumB": "#AAD5FA",
         "no data": missingValueColor
-    }
+    };
     // TCGA sample type variables:
     var sampleTypes = { "01":"primary solid tumor",
                         "02":"recurrent solid tumor",
@@ -312,26 +318,29 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     // the maximal value for each one of these annotation fields
     // and check whether or not there is gender annotation
     var maxNumberOfAnnotationFields = 0;
-    var genderAnnotation = false;    
+    var genderAnnotation = false;
     
-    var maxAnnotationValues = new Object;
+    var maxAnnotationValues = {};
     var annotationArray = [];
     n = +queryResult['annotation']['numberOfAnnotationFields'];
     if (n > maxNumberOfAnnotationFields) {
         maxNumberOfAnnotationFields = n;
     }
-    for (var sample in queryResult['annotation']) {
-        for (var annotation in queryResult['annotation'][sample]) {
+
+    var sample, pos, element, patient, s, annotationValue, e, expression, annotation, answer;
+
+    for (sample in queryResult['annotation']) {
+        for (annotation in queryResult['annotation'][sample]) {
             if ($.inArray(annotation, annotationArray) === -1) {
                 annotationArray.push(annotation);
             }
             if (annotation === "gender") {
                 genderAnnotation = true;
             }
-            var annotationValue = parseFloat(queryResult['annotation'][sample][annotation]);
+            annotationValue = parseFloat(queryResult['annotation'][sample][annotation]);
             if (!isNaN(annotationValue)) {
                 if (!maxAnnotationValues.hasOwnProperty(annotation)) {
-                    maxAnnotationValues[annotation] = annotationValue
+                    maxAnnotationValues[annotation] = annotationValue;
                 } else {
                     if (annotationValue > maxAnnotationValues[annotation]) {
                         maxAnnotationValues[annotation] = annotationValue;
@@ -376,7 +385,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
         for (sample in queryResult["slide"]) {
             if (sample !== "numberOfSlideFields") {
-                for (var element in queryResult["slide"][sample]) {
+                for (element in queryResult["slide"][sample]) {
                     slideFieldsArray.push(element);
                 }
                 break;
@@ -393,7 +402,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     
     // get the maximal expression value (will be used to determine the plot height)
     var maxExpression = 0;
-    for (var sample in queryResult['expressionData']) {
+    for (sample in queryResult['expressionData']) {
         expr = +queryResult['expressionData'][sample];
         if (expr > maxExpression) {
             maxExpression = expr;
@@ -421,34 +430,34 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var slideData = [];
     
     var probeLocations = []; // this array will be used to store the probe positions
-    for (var sample in queryResult['methylationData']) {
-        for (var pos in queryResult['methylationData'][sample]) {
+    for (sample in queryResult['methylationData']) {
+        for (pos in queryResult['methylationData'][sample]) {
             probeLocations.push(pos);
         }
         break; // we only need to loop through the positions of the first sample, since they are the same for all samples
     }
 
     var methylationValuesByProbe = {};
-    for (var pos in probeLocations) {
+    for (pos in probeLocations) {
         methylationValuesByProbe[probeLocations[pos]] = [];
     }
     
     // some of the samples won't have both expression and methylation data
     // we will only keep those samples that have both:
     var sortedSamplesReduced = [];
-    for (var s in sortedSamples) {
-        var sample = sortedSamples[s];
+    for (s in sortedSamples) {
+        sample = sortedSamples[s];
         // check if there is methylation data available for a sample
         // if there isn't, skip to the next one
         if (queryResult['methylationData'][sample]) {
             sortedSamplesReduced.push(sample);
             // methylation data
             methylationData[sample] = queryResult['methylationData'][sample];
-            for (var pos in probeLocations) {
+            for (pos in probeLocations) {
                 methylationValuesByProbe[probeLocations[pos]].push(queryResult['methylationData'][sample][probeLocations[pos]]);
             }
             // annotation data
-            var patient = sample.replace(/_\d\d$/, "");
+            patient = sample.replace(/_\d\d$/, "");
             if (queryResult['annotation'][patient]) {
                 annotationData[patient] = queryResult['annotation'][patient];
             } else {
@@ -460,50 +469,52 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             } else {
                 slideData[sample] = "no_data";
             }
-            var expression = queryResult['expressionData'][sample];
+            expression = queryResult['expressionData'][sample];
             expressionData[sample] = expression;
         }
     }
     
     // create the stats object that will contain all the correlation and p values between the different data types
     var stats = {};
+    var ann, code, p;
     stats["expressionData"] = {};
     stats["sample type"] = {};
     stats["PAM50 subtype"] = {};
     //stats["batch number"] = {};
-    for (var sample in queryResult["annotation"]) {
-        for (var ann in queryResult["annotation"][sample]) {
+    for (sample in queryResult["annotation"]) {
+        for (ann in queryResult["annotation"][sample]) {
             stats[ann] = {};
         }
         break;
     }
-    for (var sample in queryResult["slide"]) {
-        for (var ann in queryResult["slide"][sample]) {
+    for (sample in queryResult["slide"]) {
+        for (ann in queryResult["slide"][sample]) {
             stats[ann] = {};
         }
         break;
     }
+
     // fill the stats object with correlation and p values
     // this means going through the elements that are in the stats object
     // and for each one of these elements to go through the different data types that are available:
     // expression, methylation, annotation, slide and sample type
-    for (var element in stats) {
+    for (element in stats) {
         var elementData = {};
         var elementDataValues = [];
         if (element === "expressionData") {
             elementData = queryResult[element];
         } else if ($.inArray(element, annotationArray) !== -1) {
-            for (var patient in queryResult["annotation"]) {
+            for (patient in queryResult["annotation"]) {
                 elementData[patient] = queryResult["annotation"][patient][element];
             }
         } else if ($.inArray(element, slideFieldsArray) !== -1) {
-            for (var sample in queryResult["slide"]) {
+            for (sample in queryResult["slide"]) {
                 elementData[sample] = queryResult["slide"][sample][element];
             }
         } else if (element === "sample type") {
-            for (var s in sortedSamplesReduced) {
-                var sample = sortedSamplesReduced[s];
-                var code = sample.replace(/^.+_(\d\d)$/, "$1");
+            for (s in sortedSamplesReduced) {
+                sample = sortedSamplesReduced[s];
+                code = sample.replace(/^.+_(\d\d)$/, "$1");
                 if (code === "10" || code === "11" || code === "12" || code === "13" || code === "14") {
                     elementData[sample] = "1";
                 } else {
@@ -511,8 +522,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
             }
         } else if (element === "PAM50 subtype") {
-            for (var s in sortedSamplesReduced) {
-                var sample = sortedSamplesReduced[s];
+            for (s in sortedSamplesReduced) {
+                sample = sortedSamplesReduced[s];
                 if (sample in queryResult["pam50"]) {
                     elementData[sample] = queryResult["pam50"][sample];
                 } else {
@@ -530,22 +541,23 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
             }
         }*/
-        for (var e in elementData) {
+        for (e in elementData) {
             elementDataValues.push(elementData[e]);
         }
         var elementDataLevels = numberOfLevels(elementDataValues);
         // expression data
+        var array1, array2;
         if (element !== "expressionData") {
             if (elementDataLevels === 2) {
-                var array1 = [];
-                var array2 = [];
-                for (var sample in expressionData) {
-                    var patient = sample.replace(/_\d\d$/, "");
+                array1 = [];
+                array2 = [];
+                for (sample in expressionData) {
+                    patient = sample.replace(/_\d\d$/, "");
                     if (annotationData[patient] !== "no_annotation") {
                         if (element !== "sample type") {
-                            var annotationValue = annotationData[patient][element];
+                            annotationValue = annotationData[patient][element];
                         } else {
-                            var annotationValue = elementData[sample];
+                            annotationValue = elementData[sample];
                         }
                         if (annotationValue === "1") {
                             array1.push(expressionData[sample]);
@@ -554,41 +566,41 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         }
                     }
                 }
-                var answer = wilcoxonRankSumTest(array1, array2);
+                answer = wilcoxonRankSumTest(array1, array2);
                 stats[element]["expressionData"] = {p:answer};
             } else if (elementDataLevels > 2 && element !== "PAM50 subtype" && element !== "eye_color" && element !== "batch number") {
-                var array1 = [];
-                var array2 = [];
-                for (var s in sortedSamplesReduced) {
-                    var sample = sortedSamplesReduced[s];
+                array1 = [];
+                array2 = [];
+                for (s in sortedSamplesReduced) {
+                    sample = sortedSamplesReduced[s];
                     array1.push(expressionData[sample]);
                     if ($.inArray(element, annotationArray) !== -1) {
-                        var patient = sample.replace(/_\d\d$/, "");
+                        patient = sample.replace(/_\d\d$/, "");
                         array2.push(elementData[patient]);
                     } else {
                         array2.push(elementData[sample]);
                     }
                 }
-                var answer = pearsonCorrelation(array1, array2);
+                answer = pearsonCorrelation(array1, array2);
                 stats[element]["expressionData"] = {r:answer["r"], rp:answer["p"]};
             } else {
                 stats[element]["expressionData"] = {n:"no normals"};
             }
         }
         // methylation data
-        for (var p in probeLocations) {
+        for (p in probeLocations) {
             if (elementDataLevels === 2) {
                 // Wilcoxon rank-sum test
-                var array1 = [];
-                var array2 = [];
-                for (var s in sortedSamplesReduced) {
-                    var sample = sortedSamplesReduced[s];
-                    var patient = sample.replace(/_\d\d$/, "");
+                array1 = [];
+                array2 = [];
+                for (s in sortedSamplesReduced) {
+                    sample = sortedSamplesReduced[s];
+                    patient = sample.replace(/_\d\d$/, "");
                     if (annotationData[patient] !== "no_annotation") {
                         if (element !== "sample type") {
-                            var annotationValue = annotationData[patient][element];
+                            annotationValue = annotationData[patient][element];
                         } else {
-                            var annotationValue = elementData[sample];
+                            annotationValue = elementData[sample];
                         }
                         if (annotationValue === "1") {
                             array1.push(methylationData[sample][probeLocations[p]]);
@@ -597,34 +609,35 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         }
                     }
                 }
-                var answer = wilcoxonRankSumTest(array1, array2);
+                answer = wilcoxonRankSumTest(array1, array2);
                 stats[element][probeLocations[p]] = {p:answer};
             } else if (elementDataLevels > 2 && element !== "PAM50 subtype" && element !== "eye_color" && element !== "batch number") {
                 // correlation
-                var array1 = [];
-                var array2 = [];
-                for (var s in sortedSamplesReduced) {
-                    var sample = sortedSamplesReduced[s];
+                array1 = [];
+                array2 = [];
+                for (s in sortedSamplesReduced) {
+                    sample = sortedSamplesReduced[s];
                     array1.push(methylationData[sample][probeLocations[p]]);
                     if ($.inArray(element, annotationArray) !== -1) {
-                        var patient = sample.replace(/_\d\d$/, "");
+                        patient = sample.replace(/_\d\d$/, "");
                         array2.push(elementData[patient]);
                     } else {
                         array2.push(elementData[sample]);
                     }
                 }
-                var answer = pearsonCorrelation(array1, array2);
+                answer = pearsonCorrelation(array1, array2);
                 stats[element][probeLocations[p]] = {r:answer["r"], rp:answer["p"]};
             } else {
                 stats[element][probeLocations[p]] = {n:"failed"};
             }
         }
         // annotation data
+        var secondElement;
         for (var a in annotationArray) {
-            var secondElement = annotationArray[a];
+            secondElement = annotationArray[a];
             if (secondElement !== element) {
                 var secondElementData = [];
-                for (var p in annotationData) {
+                for (p in annotationData) {
                     secondElementData.push(annotationData[p][secondElement]);
                 }
                 var secondElementDataLevels = numberOfLevels(secondElementData);
@@ -634,16 +647,16 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         stats[element][secondElement] = {n:"failed"};
                     } else if (secondElementDataLevels > 2) {
                         // Wilcoxon rank-sum test
-                        var array1 = [];
-                        var array2 = [];
-                        for (var s in sortedSamplesReduced) {
-                            var sample = sortedSamplesReduced[s];
-                            var patient = sample.replace(/_\d\d$/, "");
+                        array1 = [];
+                        array2 = [];
+                        for (s in sortedSamplesReduced) {
+                            sample = sortedSamplesReduced[s];
+                            patient = sample.replace(/_\d\d$/, "");
                             if (annotationData[patient] !== "no_annotation") {
                                 if (element !== "sample type") {
-                                    var annotationValue = annotationData[patient][element];
+                                    annotationValue = annotationData[patient][element];
                                 } else {
-                                    var annotationValue = elementData[sample];
+                                    annotationValue = elementData[sample];
                                 }
                                 if (annotationValue === "1") {
                                     array1.push(annotationData[patient][secondElement]);
@@ -652,7 +665,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 }
                             }
                         }
-                        var answer = wilcoxonRankSumTest(array1, array2);
+                        answer = wilcoxonRankSumTest(array1, array2);
                         stats[element][secondElement] = {p:answer};
                     } else {
                         stats[element][secondElement] = {n:"failed"};
@@ -660,13 +673,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 } else if (elementDataLevels > 2 && element !== "PAM50 subtype" && element !== "eye_color" && element !== "batch number") {
                     if (secondElementDataLevels === 2) {
                         // Wilcoxon rank-sum test
-                        var array1 = [];
-                        var array2 = [];
-                        for (var s in sortedSamplesReduced) {
-                            var sample = sortedSamplesReduced[s];
-                            var patient = sample.replace(/_\d\d$/, "");
+                        array1 = [];
+                        array2 = [];
+                        for (s in sortedSamplesReduced) {
+                            sample = sortedSamplesReduced[s];
+                            patient = sample.replace(/_\d\d$/, "");
                             if (annotationData[patient] !== "no_annotation") {
-                                var annotationValue = annotationData[patient][secondElement];
+                                annotationValue = annotationData[patient][secondElement];
                                 if (annotationValue === "1") {
                                     if ($.inArray(element, annotationArray) !== -1) {
                                         if (elementData[patient]) {
@@ -690,15 +703,15 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 }
                             }
                         }
-                        var answer = wilcoxonRankSumTest(array1, array2);
+                        answer = wilcoxonRankSumTest(array1, array2);
                         stats[element][secondElement] = {p:answer};
                     } else if (secondElementDataLevels > 2) {
                         // correlation
-                        var array1 = [];
-                        var array2 = [];
-                        for (var s in sortedSamplesReduced) {
-                            var sample = sortedSamplesReduced[s];
-                            var patient = sample.replace(/_\d\d$/, "");
+                        array1 = [];
+                        array2 = [];
+                        for (s in sortedSamplesReduced) {
+                            sample = sortedSamplesReduced[s];
+                            patient = sample.replace(/_\d\d$/, "");
                             if ($.inArray(element, annotationArray) !== -1) {
                                 if (elementData[patient]) {
                                     array1.push(elementData[patient]);
@@ -711,7 +724,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 }
                             }
                         }
-                        var answer = pearsonCorrelation(array1, array2);
+                        answer = pearsonCorrelation(array1, array2);
                         stats[element][secondElement] = {r:answer["r"], rp:answer["p"]};
                     } else {
                         stats[element][secondElement] = {n:"failed"};
@@ -722,20 +735,20 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             }
         }
         // slide data
-        for (var s in slideFieldsArray) {
-            var secondElement = slideFieldsArray[s];
+        for (s in slideFieldsArray) {
+            secondElement = slideFieldsArray[s];
             if (secondElement !== element) {
                 if (elementDataLevels === 2) {
                     // Wilcoxon rank-sum test
-                    var array1 = [];
-                    var array2 = [];
-                    for (var s in sortedSamplesReduced) {
-                        var sample = sortedSamplesReduced[s];
-                        var patient = sample.replace(/_\d\d$/, "");
+                    array1 = [];
+                    array2 = [];
+                    for (s in sortedSamplesReduced) {
+                        sample = sortedSamplesReduced[s];
+                        patient = sample.replace(/_\d\d$/, "");
                         if (element !== "sample type") {
-                            var annotationValue = annotationData[patient][element];
+                            annotationValue = annotationData[patient][element];
                         } else {
-                            var annotationValue = elementData[sample];
+                            annotationValue = elementData[sample];
                         }
                         if (annotationValue === "1") {
                             array1.push(slideData[sample][secondElement]);
@@ -743,15 +756,15 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             array2.push(slideData[sample][secondElement]);
                         }
                     }
-                    var answer = wilcoxonRankSumTest(array1, array2);
+                    answer = wilcoxonRankSumTest(array1, array2);
                     stats[element][secondElement] = {p:answer};
                 } else if (elementDataLevels > 2 && element !== "PAM50 subtype" && element !== "eye_color" && element !== "batch number") {
                     // correlation
-                    var array1 = [];
-                    var array2 = [];
-                    for (var s in sortedSamplesReduced) {
-                        var sample = sortedSamplesReduced[s];
-                        var patient = sample.replace(/_\d\d$/, "");
+                    array1 = [];
+                    array2 = [];
+                    for (s in sortedSamplesReduced) {
+                        sample = sortedSamplesReduced[s];
+                        patient = sample.replace(/_\d\d$/, "");
                         if ($.inArray(element, annotationArray) !== -1) {
                             if (elementData[patient]) {
                                 array1.push(elementData[patient]);
@@ -762,7 +775,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             array2.push(slideData[sample][secondElement]);
                         }
                     }
-                    var answer = pearsonCorrelation(array1, array2);
+                    answer = pearsonCorrelation(array1, array2);
                     stats[element][secondElement] = {r:answer["r"], rp:answer["p"]};
                 } else {
                     stats[element][secondElement] = {n:"failed"};
@@ -773,9 +786,9 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         if (element !== "sample type") {
             var sampleTypeData = {};
             var sampleTypeValues = [];
-            for (var s in sortedSamplesReduced) {
-                var sample = sortedSamplesReduced[s];
-                var code = sample.replace(/^.+_(\d\d)$/, "$1");
+            for (s in sortedSamplesReduced) {
+                sample = sortedSamplesReduced[s];
+                code = sample.replace(/^.+_(\d\d)$/, "$1");
                 if (code === "10" || code === "11" || code === "12" || code === "13" || code === "14") {
                     sampleTypeData[sample] = "1";
                     sampleTypeValues.push("1");
@@ -792,11 +805,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     stats[element]["sample type"] = {n:"failed"};
                 } else if (elementDataLevels > 2 && element !== "PAM50 subtype" && element !== "eye_color" && element !== "batch number") {
                     // Wilcoxon rank-sum test
-                    var array1 = [];
-                    var array2 = [];
-                    for (var s in sortedSamplesReduced) {
-                        var sample = sortedSamplesReduced[s];
-                        var patient = sample.replace(/_\d\d$/, "");
+                    array1 = [];
+                    array2 = [];
+                    for (s in sortedSamplesReduced) {
+                        sample = sortedSamplesReduced[s];
+                        patient = sample.replace(/_\d\d$/, "");
                         var sampleTypeValue = sampleTypeData[sample];
                         if (sampleTypeValue === "1") {
                             if ($.inArray(element, annotationArray) !== -1) {
@@ -820,7 +833,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             }
                         }
                     }
-                    var answer = wilcoxonRankSumTest(array1, array2);
+                    answer = wilcoxonRankSumTest(array1, array2);
                     stats[element]["sample type"] = {p:answer};
                 }
             } else {
@@ -828,12 +841,14 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             }
         }
     }
+
     // get all the p values that will be shown in the plot
     // we need to adjust them for multiple hypothesis testing
     var allPValues = [];
     var allElements = [];
-    for (var e in stats[sorter]) {
-        var el = stats[sorter][e];
+    var el, i;
+    for (e in stats[sorter]) {
+        el = stats[sorter][e];
         if (el["rp"] && el["rp"] !== "failed") {
             allPValues.push(el["rp"]);
             allElements.push(e);
@@ -842,19 +857,19 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             allElements.push(e);
         }
     }
-    correctedPValues = pAdjust(allPValues, "bh");
-    for (var i=0; i<correctedPValues.length; i++) {
-        var p = correctedPValues[i];
-        p = +p.toPrecision(3);
-        var pTest = p*1000;
+    var correctedPValues = pAdjust(allPValues, "bh");
+    for (i=0; i<correctedPValues.length; i++) {
+        var pVal = correctedPValues[i];
+        pVal = +pVal.toPrecision(3);
+        var pTest = pVal*1000;
         if (pTest < 1) {
-            p = p.toExponential();
+            pVal = pVal.toExponential();
         }
-        var el = allElements[i];
+        el = allElements[i];
         if (stats[sorter][el]["rp"]) {
-            stats[sorter][el]["rp"] = p;
+            stats[sorter][el]["rp"] = pVal;
         } else if (stats[sorter][el]["p"]) {
-            stats[sorter][el]["p"] = p;
+            stats[sorter][el]["p"] = pVal;
         }
     }
 
@@ -867,6 +882,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     // determine the number of transcripts and whether or not there are any CpG islands
     // these numbers will determine the width of the plot
     tCount = 0;
+    var key;
     for(key in transcripts) {
         if(transcripts.hasOwnProperty(key)) {
             tCount++;
@@ -888,12 +904,12 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var geneLength = Math.abs(geneStart - geneEnd);
     // determine the height of the legend
     // this must be at least 126px, but has to be higher if there are more than 7 different sample types
-    legendHeight = 148;
+    var legendHeight = 148;
     var sampleTypesPresent = [];
     if (queryResult['annotation'] !== "no_annotation") {
-        for (var s in sortedSamplesReduced) {
-            var sample = sortedSamplesReduced[s];
-            var code = sample.replace(/^.+_(\d\d)$/, "$1");
+        for (s in sortedSamplesReduced) {
+            sample = sortedSamplesReduced[s];
+            code = sample.replace(/^.+_(\d\d)$/, "$1");
             if ($.inArray(code, sampleTypesPresent) === -1) {
                 sampleTypesPresent.push(code);
             }
@@ -909,6 +925,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var width = plotWidth - leftMargin - rightMargin;
     // account for the width of the legend
     var minWidth = 600;
+    var height;
     if (genderAnnotation) {
         minWidth = 750;
     }
@@ -918,13 +935,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     if (numberOfProbes < 10) {
         // ensure that even when there are only a few probes
         // the gene plot will still be big enough to interpret
-        var height = 10*sampleRowHeight;
+        height = 10*sampleRowHeight;
     } else {
         if (geneLength > 100000 && numberOfProbes < 40) {
             // make sure that for very long genes with few probes the details (like exons and CpG islands) are still visible by stretching out the gene
-            var height = 40*sampleRowHeight;
+            height = 40*sampleRowHeight;
         } else {
-            var height = numberOfProbes*sampleRowHeight;
+            height = numberOfProbes*sampleRowHeight;
         }
     }
     // determine the width of a sample column based on the width of the plot and the number of samples
@@ -946,7 +963,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     
     // create a d3 line variable
     var line = d3.svg.line()
-        .defined(function(d) { return d != null; })
+        .defined(function(d) { return d !== null; })
         .x(function(d,i) { return (x(i) + sampleColumnWidth/2); })
         .y(function(d){ return d; });
     
@@ -981,17 +998,19 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var factor = (plotEnd - plotStart)/numberOfProbes;
     var geneStartPlot = (geneStart - plotStart)/factor;
     var geneEndPlot = (geneEnd - plotStart)/factor;
+    var promoterStart, promoterEnd;
     if (strand === "1") {
-        var promoterStart = geneStart - 1000;
-        var promoterEnd = geneStart + 500;
+        promoterStart = geneStart - 1000;
+        promoterEnd = geneStart + 500;
     } else {
-        var promoterStart = geneEnd - 500;
-        var promoterEnd = geneEnd + 1000;
+        promoterStart = geneEnd - 500;
+        promoterEnd = geneEnd + 1000;
     }
     
     // draw the legend
-    var xPos = -leftMargin + 1;
-    var yPos = -topMargin + 24;
+    var xPos, yPos;
+    xPos = -leftMargin + 1;
+    yPos = -topMargin + 24;
     // column 1: annotation
     svg.append("text")
         .attr("x", xPos)
@@ -1208,7 +1227,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             .attr("y", yPos)
             .attr("font-weight", "bold")
             .text("BRCA subtype");
-        var i = 0;
+        i = 0;
         for (var subtype in pam50subtypeColors) {
             if (subtype !== "no data") {
                 svg.append("rect")
@@ -1234,8 +1253,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         .text("sample type");
     var sampleTypeCounter = 0;
     for (s in sampleTypesPresent) {
-        var code = sampleTypesPresent[s];
-        var sampleText = sampleTypes[code]
+        code = sampleTypesPresent[s];
+        var sampleText = sampleTypes[code];
         if (sampleText.length > 26) {
             sampleText = sampleText.substring(0, 23);
             sampleText = sampleText + "...";
@@ -1255,15 +1274,16 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
 
     // draw the lines to indicate the probe locations (connect the methylation value barplots to the corresponding genomic location on the gene annotation)
     // by drawing these lines first we ensure that they will be in the background
-    for (var sample in queryResult['methylationData']) {
-        var probeNr = 0;
-        for (var pos in queryResult['methylationData'][sample]) {
+    var promoterClass, probeNr;
+    for (sample in queryResult['methylationData']) {
+        probeNr = 0;
+        for (pos in queryResult['methylationData'][sample]) {
             probeNr++;
-            var promoterClass = "";
+            promoterClass = "";
             if (pos >= promoterStart && pos <= promoterEnd) {
                 promoterClass = "prom";
             }
-            var probeLocationPlot = (pos - plotStart)/factor
+            var probeLocationPlot = (pos - plotStart)/factor;
             svg.append("line")
                 .attr("x1", -leftMargin)
                 .attr("x2", -leftMargin + annotationWidth + 80)
@@ -1371,7 +1391,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             .html("<title>" + t + "</title");
         // add the exons
         var exons = queryResult["transcripts"][t]["exons"];
-        for (var e in exons) {
+        for (e in exons) {
             var eStart = +exons[e]["start"];
             var eEnd = +exons[e]["end"];
             eStartPlot = (eStart - plotStart)/factor;
@@ -1392,12 +1412,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     if (scaleBarLength < 1000 && geneLength < 5000) {
         scaleBarLength = 1000;
     }
+    var sStart, sEnd;
     if (strand === "1") {
-        var sStart = geneStart - scaleBarLength/2;
-        var sEnd = geneStart + scaleBarLength/2;
+        sStart = geneStart - scaleBarLength/2;
+        sEnd = geneStart + scaleBarLength/2;
     } else {
-        var sStart = geneEnd - scaleBarLength/2;
-        var sEnd = geneEnd + scaleBarLength/2;
+        sStart = geneEnd - scaleBarLength/2;
+        sEnd = geneEnd + scaleBarLength/2;
     }
     var sStartPlot = (sStart - plotStart)/factor;
     var sEndPlot = (sEnd - plotStart)/factor;
@@ -1411,10 +1432,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     // add a text element that shows the length of the scale bar in kb
     var kbLength = scaleBarLength/1000;
     kbLength = kbLength + "kb";
+    var textY;
     if (strand == "1") {
-        var textY = y(sStartPlot) + 2;
+        textY = y(sStartPlot) + 2;
     } else {
-        var textY = y(sEndPlot) - 10;
+        textY = y(sEndPlot) - 10;
     }
     svg.append("text")
         .attr("x", -leftMargin + 1)
@@ -1425,9 +1447,9 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     
     // draw the expression data
     var expressionLineData = [];
-    for (var s in sortedSamplesReduced) {
-        var sample = sortedSamplesReduced[s];
-        var expression = expressionData[sample]
+    for (s in sortedSamplesReduced) {
+        sample = sortedSamplesReduced[s];
+        expression = expressionData[sample];
         expressionLineData.push(height - y(0) - (expression/20)*sampleRowHeight*3 - 10);
     }
 
@@ -1439,9 +1461,9 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         areaAddedValue = 1;
     }
     var expressionArea = d3.svg.area()
-        .defined(function(d) { return d })
-        .x(function(d,i) { return x(i) + areaAddedValue })
-        .y1(function(d) { return d })
+        .defined(function(d) { return d; })
+        .x(function(d,i) { return x(i) + areaAddedValue; })
+        .y1(function(d) { return d; })
         .y0(height - y(0) - 10);
     svg.append("path")
         .attr("d", expressionArea(expressionLineData))
@@ -1484,13 +1506,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             });
     
     // draw the methylation lines
-    var probeNumber = 0
-    for (var pos in methylationValuesByProbe) {
+    var probeNumber = 0;
+    for (pos in methylationValuesByProbe) {
         probeNumber++;
         // change the methylation values for each probe to the appropriate y values for the plot
         var methylationDataProbe = methylationValuesByProbe[pos];
         var methylationLineData = [];
-        for (var s in methylationDataProbe) {
+        for (s in methylationDataProbe) {
             var methylation = methylationDataProbe[s];
             if (isNaN(methylation)) {
                 methylationLineData.push(null);
@@ -1499,11 +1521,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 methylationLineData.push(yValue);
             }
         }
-        var promoterClass = "";
+        promoterClass = "";
         if (pos >= promoterStart && pos <= promoterEnd) {
             promoterClass = "prom";
         }
-        if (!methylationLineData.some(function(v){ return v !== null })) {
+        if (!methylationLineData.some(function(v){ return v !== null; })) {
             // test whether all elements are null or not (this line returns true if all elements are null)
             // add text to the plot explaining there is no methylation data available
             svg.append("text")
@@ -1517,9 +1539,9 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         } else {
             // add the area under the line
             var methylationArea = d3.svg.area()
-                .defined(function(d) { return d })
-                .x(function(d,i) { return x(i) + areaAddedValue })
-                .y1(function(d) { return d })
+                .defined(function(d) { return d; })
+                .x(function(d,i) { return x(i) + areaAddedValue; })
+                .y1(function(d) { return d; })
                 .y0(height - y(probeNumber - 1) + sampleRowHeight);
             svg.append("path")
                 .attr("d", methylationArea(methylationLineData))
@@ -1537,11 +1559,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     
     // add the "hover" state for each probe (when hovering the line area for a probe, the genomic location gets highlighted)
     var probePositions = [];
-    for (var s in sortedSamplesReduced) {
-        var sample = sortedSamplesReduced[s];
-        var probeNr = 0;
+    for (s in sortedSamplesReduced) {
+        sample = sortedSamplesReduced[s];
+        probeNr = 0;
         if (methylationData[sample]) {
-            for (var pos in methylationData[sample]) {
+            for (pos in methylationData[sample]) {
                 probeNr++;
                 probePositions.push(pos);
                 var probeId = queryResult["probeIds"][pos];
@@ -1640,7 +1662,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                     var annWidth = 140;
                                     if (annotation.length > 20) {
                                         annWidth = 180;
-                                    } 
+                                    }
                                     // show the probe annotation
                                     svg.append("rect")
                                         .attr("x", -142)
@@ -1710,19 +1732,22 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     
     // add the correlation values
     // loop through the probes and calculate the correlation value between the methylation and expression for each sample
-    var probeNr = 0;
+    probeNr = 0;
+    var stat, r, rString, correlationColor, correlationWeight, pNum;
+    var significanceColor;
+    var significanceWeight;
     if (sorter === "expressionData") {
-        for (var pos in probePositions) {
+        for (pos in probePositions) {
             probeNr++;
             // use the stats object to find the correlation values
-            var stat = stats[sorter][probePositions[pos]];
+            stat = stats[sorter][probePositions[pos]];
             if (stat["r"]) {
-                var r = stat["r"];
+                r = stat["r"];
                 if (r !== "failed") {
-                    var p = parseFloat(stat["rp"]);
-                    var rString = formatCorrelation(r, p);
-                    var correlationColor = "#aaa";
-                    var correlationWeight = "normal";
+                    p = parseFloat(stat["rp"]);
+                    rString = formatCorrelation(r, p);
+                    correlationColor = "#aaa";
+                    correlationWeight = "normal";
                     if (p < 0.05) {
                         correlationColor = "#666";
                         correlationWeight = "bold";
@@ -1739,21 +1764,21 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             }
         }
     } else {
-        for (var pos in probePositions) {
+        for (pos in probePositions) {
             probeNr++;
-            var stat = stats[sorter][probePositions[pos]];
+            stat = stats[sorter][probePositions[pos]];
             if (stat["p"] || stat["p"] === 0) {
-                var p = stat["p"];
+                p = stat["p"];
                 if (p !== "failed") {
-                    var significanceColor = "#aaa";
-                    var significanceWeight = "normal";
-                    var pNum = parseFloat(p);
+                    significanceColor = "#aaa";
+                    significanceWeight = "normal";
+                    pNum = parseFloat(p);
                     if (pNum < 0.05) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
                     if (pNum < 10*Math.pow(10, -16)) {
-                        p = "p < 2.2e-16"
+                        p = "p < 2.2e-16";
                     } else {
                         p = "p = " + p;
                     }
@@ -1767,12 +1792,12 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         .text(p);
                 }
             } else if (stat["r"]) {
-                var r = stat["r"];
+                r = stat["r"];
                 if (r !== "failed") {
-                    var p = parseFloat(stat["rp"]);
-                    var rString = formatCorrelation(r, p);
-                    var correlationColor = "#aaa";
-                    var correlationWeight = "normal";
+                    p = parseFloat(stat["rp"]);
+                    rString = formatCorrelation(r, p);
+                    correlationColor = "#aaa";
+                    correlationWeight = "normal";
                     if (p < 0.05) {
                         correlationColor = "#666";
                         correlationWeight = "bold";
@@ -1790,23 +1815,25 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
     }
     
+    var annotationCount, sampleNr, slideFieldCount, rectHeight, field, fieldName;
     if (queryResult['annotation'] !== "no_annotation") {
         // add the annotation data
-        var sampleNr = 0;
+        sampleNr = 0;
         
-        for (var s in sortedSamplesReduced) {
-            var sample = sortedSamplesReduced[s];
-            var patient = sample.replace(/_\d\d$/, "");
+        for (s in sortedSamplesReduced) {
+            sample = sortedSamplesReduced[s];
+            patient = sample.replace(/_\d\d$/, "");
+            var annotationColor;
             if (sampleNr % 2 === 0) {
-                var annotationColor = annotationColorEven;
+                annotationColor = annotationColorEven;
             } else {
-                var annotationColor = annotationColorUneven;
+                annotationColor = annotationColorUneven;
             }
-            var code = sample.replace(/^.+_(\d\d)$/, "$1");
+            code = sample.replace(/^.+_(\d\d)$/, "$1");
             var sampleType = sampleTypes[code];
             var sampleTypeColor = sampleTypeColors[code];
 
-            var annotationCount = 1;
+            annotationCount = 1;
 
             // draw a rectangle for the batch number
             /*var batch = queryResult['batch'][sample];
@@ -1860,42 +1887,44 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             }
             
             if (annotationData[patient] !== "no_annotation") {
-                for (var annotation in annotationData[patient]) {
-                    var annotationValue = annotationData[patient][annotation];
+                for (annotation in annotationData[patient]) {
+                    annotationValue = annotationData[patient][annotation];
                     // different color for gender
+                    var genderColor;
                     if (annotation === "gender") {
                         if (annotationValue == 1) { // female
                             if (sampleNr % 2 === 0) {
-                                var genderColor = femaleColorEven;
+                                genderColor = femaleColorEven;
                             } else {
-                                var genderColor = femaleColorUneven;
+                                genderColor = femaleColorUneven;
                             }
                         } else { // male
                             if (sampleNr % 2 === 0) {
-                                var genderColor = maleColorEven;
+                                genderColor = maleColorEven;
                             } else {
-                                var genderColor = maleColorUneven;
+                                genderColor = maleColorUneven;
                             }
                         }
                     }
+                    var eyeColor;
                     if (annotation === "eye_color") {
                         if (annotationValue == 1) { // blue eyes
                             if (sampleNr % 2 === 0) {
-                                var eyeColor = blueEyesEven;
+                                eyeColor = blueEyesEven;
                             } else {
-                                var eyeColor = blueEyesUneven;
+                                eyeColor = blueEyesUneven;
                             }
                         } else if (annotationValue == 2) { // brown eyes
                             if (sampleNr % 2 === 0) {
-                                var eyeColor = brownEyesEven;
+                                eyeColor = brownEyesEven;
                             } else {
-                                var eyeColor = brownEyesUneven;
+                                eyeColor = brownEyesUneven;
                             }
                         } else { // green eyes
                             if (sampleNr % 2 === 0) {
-                                var eyeColor = greenEyesEven;
+                                eyeColor = greenEyesEven;
                             } else {
-                                var eyeColor = greenEyesUneven;
+                                eyeColor = greenEyesUneven;
                             }
                         }
                     }
@@ -1910,8 +1939,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             .attr("height", annotationRowHeight);
                     } else {
                         if (annotation === "gender") {
-                            var rectHeight = annotationRowHeight;
-                            var yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            rectHeight = annotationRowHeight;
+                            yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
                             svg.append("rect")
                                 .attr("fill", genderColor)
                                 .attr("x", x(sampleNr))
@@ -1919,8 +1948,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 .attr("width", sampleColumnWidth)
                                 .attr("height", rectHeight);
                         } else if (annotation === "eye_color") {
-                            var rectHeight = annotationRowHeight;
-                            var yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            rectHeight = annotationRowHeight;
+                            yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
                             svg.append("rect")
                                 .attr("fill", eyeColor)
                                 .attr("x", x(sampleNr))
@@ -1928,8 +1957,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 .attr("width", sampleColumnWidth)
                                 .attr("height", rectHeight);
                         } else {
-                            var rectHeight = (annotationRowHeight/maxAnnotationValue)*annotationValue;
-                            var yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            rectHeight = (annotationRowHeight/maxAnnotationValue)*annotationValue;
+                            yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
                             svg.append("rect")
                                 .attr("fill", annotationColor)
                                 .attr("x", x(sampleNr))
@@ -1955,21 +1984,21 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         if (sorter === "expressionData") {
             // add the annotation correlation and p values to the plot
             // sample type
-            var annotationCount = 0; // without batch ID
+            annotationCount = 0; // without batch ID
             //var annotationCount = 1; // with batch ID
-            var stat = stats[sorter]["sample type"];
+            stat = stats[sorter]["sample type"];
             if (stat["p"] || stat["p"] === 0) {
-                var p = stat["p"];
+                p = stat["p"];
                 if (p !== "failed") {
-                    var significanceColor = "#aaa";
-                    var significanceWeight = "normal";
-                    var pNum = parseFloat(p);
+                    significanceColor = "#aaa";
+                    significanceWeight = "normal";
+                    pNum = parseFloat(p);
                     if (pNum < 0.05) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
                     if (pNum < 10*Math.pow(10, -16)) {
-                        p = "p < 2.2e-16"
+                        p = "p < 2.2e-16";
                     } else {
                         p = "p = " + p;
                     }
@@ -1987,21 +2016,21 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             if (source === "BRCA breast invasive carcinoma") {
                 annotationCount++;
             }
-            for (var annotation in maxAnnotationValues) {
+            for (annotation in maxAnnotationValues) {
                 annotationCount++;
-                var stat = stats[sorter][annotation];
+                stat = stats[sorter][annotation];
                 if (stat["p"] || stat["p"] === 0) {
-                    var p = stat["p"];
+                    p = stat["p"];
                     if (p !== "failed") {
-                        var significanceColor = "#aaa";
-                        var significanceWeight = "normal";
-                        var pNum = parseFloat(p);
+                        significanceColor = "#aaa";
+                        significanceWeight = "normal";
+                        pNum = parseFloat(p);
                         if (pNum < 0.05) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
                         if (pNum < 10*Math.pow(10, -16)) {
-                            p = "p < 2.2e-16"
+                            p = "p < 2.2e-16";
                         } else {
                             p = "p = " + p;
                         }
@@ -2015,12 +2044,12 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             .text(p);
                     }
                 } else if (stat["r"]) {
-                    var r = stat["r"];
+                    r = stat["r"];
                     if (r !== "failed") {
-                        var p = parseFloat(stat["rp"]);
-                        var rString = formatCorrelation(r, p);
-                        var correlationColor = "#aaa";
-                        var correlationWeight = "normal";
+                        p = parseFloat(stat["rp"]);
+                        rString = formatCorrelation(r, p);
+                        correlationColor = "#aaa";
+                        correlationWeight = "normal";
                         if (p < 0.05) {
                             correlationColor = "#666";
                             correlationWeight = "bold";
@@ -2037,17 +2066,17 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
             }
             // slide fields
-            var slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // reset the slide field counter
+            slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // reset the slide field counter
             for (field in slideFieldsArray) {
-                var fieldName = slideFieldsArray[field];
-                var stat = stats["expressionData"][fieldName];
+                fieldName = slideFieldsArray[field];
+                stat = stats["expressionData"][fieldName];
                 if (stat["r"]) {
-                    var r = stat["r"];
+                    r = stat["r"];
                     if (r !== "failed") {
-                        var p = parseFloat(stat["rp"]);
-                        var rString = formatCorrelation(r, p);
-                        var correlationColor = "#aaa";
-                        var correlationWeight = "normal";
+                        p = parseFloat(stat["rp"]);
+                        rString = formatCorrelation(r, p);
+                        correlationColor = "#aaa";
+                        correlationWeight = "normal";
                         if (p < 0.05) {
                             correlationColor = "#666";
                             correlationWeight = "bold";
@@ -2066,9 +2095,9 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 slideFieldCount++;
             }
         } else if (sorter === "sample type") {
-            var stat = stats[sorter]["expressionData"];
+            stat = stats[sorter]["expressionData"];
             if (stat["n"]) {
-                var answer = stat["n"];
+                answer = stat["n"];
                 svg.append("text")
                     .attr("x", x(numberOfSamples) + 4*sampleColumnWidth)
                     .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight)
@@ -2077,17 +2106,17 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     .attr("fill", "#aaa")
                     .text(answer);
             } else if (stat["p"] || stat["p"] === 0) {
-                var p = stat["p"];
+                p = stat["p"];
                 if (p !== "failed") {
-                    var significanceColor = "#aaa";
-                    var significanceWeight = "normal";
-                    var pNum = parseFloat(p);
+                    significanceColor = "#aaa";
+                    significanceWeight = "normal";
+                    pNum = parseFloat(p);
                     if (pNum < 0.05) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
                     if (pNum < 10*Math.pow(10, -16)) {
-                        p = "p < 2.2e-16"
+                        p = "p < 2.2e-16";
                     } else {
                         p = "p = " + p;
                     }
@@ -2102,22 +2131,22 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
             }
             // get the methylation difference between normal and tumor samples
-            var probeNr = 0;
-            for (var pos in probePositions) {
+            probeNr = 0;
+            for (pos in probePositions) {
                 probeNr++;
-                var stat = stats[sorter][probePositions[pos]];
+                stat = stats[sorter][probePositions[pos]];
                 if (stat["p"] || stat["p"] === 0) {
-                    var p = stat["p"];
+                    p = stat["p"];
                     if (p !== "failed") {
-                        var significanceColor = "#aaa";
-                        var significanceWeight = "normal";
-                        var pNum = parseFloat(p);
+                        significanceColor = "#aaa";
+                        significanceWeight = "normal";
+                        pNum = parseFloat(p);
                         if (pNum < 0.05) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
                         if (pNum < 10*Math.pow(10, -16)) {
-                            p = "p < 2.2e-16"
+                            p = "p < 2.2e-16";
                         } else {
                             p = "p = " + p;
                         }
@@ -2133,19 +2162,19 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
             }
         } else {
-            var stat = stats[sorter]["expressionData"]; 
+            stat = stats[sorter]["expressionData"];
             if (stat["p"] || stat["p"] === 0) {
-                var p = stat["p"];
+                p = stat["p"];
                 if (p !== "failed") {
-                    var significanceColor = "#aaa";
-                    var significanceWeight = "normal";
-                    var pNum = parseFloat(p);
+                    significanceColor = "#aaa";
+                    significanceWeight = "normal";
+                    pNum = parseFloat(p);
                     if (pNum < 0.05) {
                         significanceColor = "#666";
                         significanceWeight = "bold";
                     }
                     if (pNum < 10*Math.pow(10, -16)) {
-                        p = "p < 2.2e-16"
+                        p = "p < 2.2e-16";
                     } else {
                         p = "p = " + p;
                     }
@@ -2159,12 +2188,12 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         .text(p);
                 }
             } else if (stat["r"]) {
-                var r = stat["r"];
+                r = stat["r"];
                 if (r !== "failed") {
-                    var p = parseFloat(stat["rp"]);
-                    var rString = formatCorrelation(r, p);
-                    var correlationColor = "#aaa";
-                    var correlationWeight = "normal";
+                    p = parseFloat(stat["rp"]);
+                    rString = formatCorrelation(r, p);
+                    correlationColor = "#aaa";
+                    correlationWeight = "normal";
                     if (p < 0.05) {
                         correlationColor = "#666";
                         correlationWeight = "bold";
@@ -2182,7 +2211,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
         
         // add the annotation names to the plot
-        var annotationCount = 0;
+        annotationCount = 0;
         
         /*svg.append("text")
             .attr("x", -4)
@@ -2213,7 +2242,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             .attr("id", "sample type")
             .attr("text-anchor", "end")
             .text("sample type")
-            .on("mouseup", function() { 
+            .on("mouseup", function() {
                 
                 var ann = $(this).text();
                 ann = ann.replace(/\u2192 /, "");
@@ -2244,7 +2273,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 });
         }
         // add the correlation/p values for the annotation values
-        for (var annotation in maxAnnotationValues) {
+        for (annotation in maxAnnotationValues) {
             annotationCount++;
             annotation = annotation.replace(/_/g, " ");
             svg.append("text")
@@ -2266,21 +2295,21 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     }
                     
                 });
-            var ann = annotation.replace(/ /g, "_");
+            ann = annotation.replace(/ /g, "_");
             if (ann !== sorter && sorter !== "expressionData") {
-                var stat = stats[sorter][ann];
+                stat = stats[sorter][ann];
                 if (stat["p"] || stat["p"] === 0) {
-                    var p = stat["p"];
+                    p = stat["p"];
                     if (p !== "failed") {
-                        var significanceColor = "#aaa";
-                        var significanceWeight = "normal";
-                        var pNum = parseFloat(p);
+                        significanceColor = "#aaa";
+                        significanceWeight = "normal";
+                        pNum = parseFloat(p);
                         if (pNum < 0.05) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
                         if (pNum < 10*Math.pow(10, -16)) {
-                            p = "p < 2.2e-16"
+                            p = "p < 2.2e-16";
                         } else {
                             p = "p = " + p;
                         }
@@ -2294,12 +2323,12 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             .text(p);
                     }
                 } else if (stat["r"]) {
-                    var r = stat["r"];
+                    r = stat["r"];
                     if (r !== "failed") {
-                        var p = parseFloat(stat["rp"]);
-                        var rString = formatCorrelation(r, p);
-                        var correlationColor = "#aaa";
-                        var correlationWeight = "normal";
+                        p = parseFloat(stat["rp"]);
+                        rString = formatCorrelation(r, p);
+                        correlationColor = "#aaa";
+                        correlationWeight = "normal";
                         if (p < 0.05) {
                             correlationColor = "#666";
                             correlationWeight = "bold";
@@ -2319,14 +2348,15 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     }
     
     // add the biospecimen slide data
+    var slideField;
     if (queryResult['slide'] !== "no_data") {
-        var sampleNr = 0;
+        sampleNr = 0;
         var numberOfSlideFields = queryResult['slide']['numberOfSlideFields'];
-        var slideFieldsArray = [];
-        for (var s in sortedSamplesReduced) {
-            var sample = sortedSamplesReduced[s];
+        slideFieldsArray = [];
+        for (s in sortedSamplesReduced) {
+            sample = sortedSamplesReduced[s];
             if (slideData[sample] !== "no_data") {
-                for (var slideField in slideData[sample]) {
+                for (slideField in slideData[sample]) {
                     if ($.inArray(slideField, slideFieldsArray) === -1) {
                         slideFieldsArray.push(slideField);
                     }
@@ -2334,23 +2364,24 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 break;
             }
         }
-        for (var s in sortedSamplesReduced) {
-            var sample = sortedSamplesReduced[s];
+        for (s in sortedSamplesReduced) {
+            sample = sortedSamplesReduced[s];
             //sampleNr++;
             if (slideData[sample] !== "no_data") {
+                var slideFieldColor;
                 if (sampleNr % 2 === 0) {
-                    var slideFieldColor = annotationColorEven;
+                    slideFieldColor = annotationColorEven;
                 } else {
-                    var slideFieldColor = annotationColorUneven;
+                    slideFieldColor = annotationColorUneven;
                 }
-                var slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // needs to start above the already plotted annotation rows
-                for (var slideField in slideData[sample]) {
+                slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // needs to start above the already plotted annotation rows
+                for (slideField in slideData[sample]) {
                     slideFieldCount++;
                     // plot the rectangle
                     slideFieldValue = slideData[sample][slideField];
                     if (typeof slideData[sample][slideField] != 'undefined') {
-                        var rectHeight = (annotationRowHeight/100)*slideFieldValue;
-                        var yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount + (annotationRowHeight - rectHeight);
+                        rectHeight = (annotationRowHeight/100)*slideFieldValue;
+                        yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount + (annotationRowHeight - rectHeight);
                         svg.append("rect")
                             .attr("fill", slideFieldColor)
                             .attr("x", x(sampleNr))
@@ -2361,7 +2392,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     }
                 }
             } else {
-                var slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // needs to start above the already plotted annotation rows
+                slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // needs to start above the already plotted annotation rows
                 for (field in slideFieldsArray) {
                     slideFieldCount++;
                     svg.append("rect")
@@ -2376,10 +2407,10 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             sampleNr++;
         }
         // add the slide field annotation names
-        var slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // needs to start above the already plotted annotation rows
+        slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // needs to start above the already plotted annotation rows
         for (field in slideFieldsArray) {
-            var fieldName = slideFieldsArray[field];
-            var annotation = fieldName.replace(/_/g, " ");
+            fieldName = slideFieldsArray[field];
+            annotation = fieldName.replace(/_/g, " ");
             svg.append("text")
                 .attr("x", -4)
                 .attr("y", height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4)
@@ -2401,18 +2432,18 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 });
         }
         // add the correlation values/p values for the slide field annotations
-        var slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // reset the slide field counter
+        slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // reset the slide field counter
         for (field in slideFieldsArray) {
-            var fieldName = slideFieldsArray[field];
+            fieldName = slideFieldsArray[field];
             if (fieldName !== sorter && sorter !== "expressionData") {
-                var stat = stats[sorter][fieldName];
+                stat = stats[sorter][fieldName];
                 if (stat["r"]) {
-                    var r = stat["r"];
+                    r = stat["r"];
                     if (r !== "failed") {
-                        var p = parseFloat(stat["rp"]);
-                        var rString = formatCorrelation(r, p);
-                        var correlationColor = "#aaa";
-                        var correlationWeight = "normal";
+                        p = parseFloat(stat["rp"]);
+                        rString = formatCorrelation(r, p);
+                        correlationColor = "#aaa";
+                        correlationWeight = "normal";
                         if (p < 0.05) {
                             correlationColor = "#666";
                             correlationWeight = "bold";
@@ -2428,17 +2459,17 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             .text(rString);
                     }
                 } else if (stat["p"] || stat["p"] === 0) {
-                    var p = stat["p"];
+                    p = stat["p"];
                     if (p !== "failed") {
-                        var significanceColor = "#aaa";
-                        var significanceWeight = "normal";
-                        var pNum = parseFloat(p);
+                        significanceColor = "#aaa";
+                        significanceWeight = "normal";
+                        pNum = parseFloat(p);
                         if (pNum < 0.05) {
                             significanceColor = "#666";
                             significanceWeight = "bold";
                         }
                         if (pNum < 10*Math.pow(10, -16)) {
-                            p = "p < 2.2e-16"
+                            p = "p < 2.2e-16";
                         } else {
                             p = "p = " + p;
                         }
@@ -2519,17 +2550,18 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         
         // highlight the promoter probes
         $(".prom").each(function() {
+            var col;
             var probe = $(this);
             if (probe.is("path")) {
                 if (probe.attr("class").match(/line/)) {
-                    var col = probe.attr("stroke");
+                    col = probe.attr("stroke");
                     if (col === methylationLineColor) {
                         probe.attr("stroke", selectedMethLineColor);
                     } else {
                         probe.attr("stroke", methylationLineColor);
                     }
                 } else {
-                    var col = probe.attr("fill");
+                    col = probe.attr("fill");
                     if (col === methylationFillColor) {
                         probe.attr("fill", selectedMethFillColor);
                     } else {
@@ -2537,14 +2569,14 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     }
                 }
             } else if (probe.is("text")) {
-                var col = probe.attr("fill");
+                col = probe.attr("fill");
                 if (col === noMethDataColor) {
                     probe.attr("fill", selectedMethLineColor);
                 } else {
                     probe.attr("fill", noMethDataColor);
                 }
             } else if (probe.is("line")) {
-                var col = probe.attr("stroke");
+                col = probe.attr("stroke");
                 if (col === probeLocationLineColor) {
                     probe.attr("stroke", selectedProbeColor);
                 } else {
@@ -2659,7 +2691,7 @@ function removeMessages() {
 function numberOfLevels(array) {
     
     var uniqueArrayValues = [];
-    for (a in array) {
+    for (var a in array) {
         var value = array[a];
         if ($.inArray(value, uniqueArrayValues) === -1 && value !== null && value !== undefined) {
             uniqueArrayValues.push(value);

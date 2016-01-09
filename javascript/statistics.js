@@ -2,29 +2,29 @@ function pAdjust(p, method) {
 
     // This function corrects p values using the user-specified method.
     // Currently, it only supports the Benjamini-Hochberg method ('bh').
-
+    var c;
     // get the length of the p values array and use it to create an index array (1-based!)
     if (method === "bh") {
         var n = p.length;
         var i = [];
-        for (var c = n; c > 0; c--) {
+        for (c = n; c > 0; c--) {
             i.push(c);
         }
         var pValues = [];
-        for (var c = 0; c < n; c++) {
+        for (c = 0; c < n; c++) {
             pValues[c] = [p[c], c];
         }
         // sort the p values
         var pValuesSorted = nestedArraySort(pValues, true, 0);
         var cumMin;
-        for (var c = 0; c < n; c++) {
+        for (c = 0; c < n; c++) {
             var x = pValuesSorted[c][0]*n/i[c];
             if (c !== 0) {
                 if (x < cumMin) {
                     cumMin = x;
                 } else {
                     x = cumMin;
-                }   
+                }
             } else {
                 cumMin = x;
             }
@@ -36,8 +36,8 @@ function pAdjust(p, method) {
         // put the adjusted p values back in their original order
         pValuesSorted = nestedArraySort(pValuesSorted, false, 1);
         result = [];
-        for (var i = 0; i < pValuesSorted.length; i++) {
-            result.push(pValuesSorted[i][0]);
+        for (c = 0; c < pValuesSorted.length; c++) {
+            result.push(pValuesSorted[c][0]);
         }
         return result;
     }
@@ -47,7 +47,7 @@ function pAdjust(p, method) {
 function pearsonCorrelation(x, y) {
     
     // This function calculates the Pearson correlation coefficient between two arrays.
-    
+    var c;
     // check if the arrays have the same length
     if (x.length !== y.length) {
         return "failed";
@@ -55,10 +55,10 @@ function pearsonCorrelation(x, y) {
     // check if there are any missing values and remove them from both arrays if there are
     var newX = [];
     var newY = [];
-    for (var p in y) {
-        if (!isNaN(y[p]) && !isNaN(x[p])) {
-            newY.push(+y[p]);
-            newX.push(+x[p]);
+    for (c in y) {
+        if (!isNaN(y[c]) && !isNaN(x[c])) {
+            newY.push(+y[c]);
+            newX.push(+x[c]);
         }
     }
     if (newY.length > 10) {
@@ -69,12 +69,12 @@ function pearsonCorrelation(x, y) {
         var xSquaredSum = 0;
         var ySquaredSum = 0;
         var xyProd = 0;
-        for (var p in newY) {
-            xSum += newX[p];
-            xSquaredSum += Math.pow(newX[p], 2);
-            ySum += newY[p];
-            ySquaredSum += Math.pow(newY[p], 2);
-            xyProd += newX[p]*newY[p];
+        for (c in newY) {
+            xSum += newX[c];
+            xSquaredSum += Math.pow(newX[c], 2);
+            ySum += newY[c];
+            ySquaredSum += Math.pow(newY[c], 2);
+            xyProd += newX[c]*newY[c];
         }
         var numerator = xyProd - xSum*ySum/n;
         var denominator = Math.sqrt(xSquaredSum - Math.pow(xSum, 2)/n)*(Math.sqrt(ySquaredSum - Math.pow(ySum, 2)/n));
@@ -172,21 +172,21 @@ function tDistribution(df, t) {
 function tTest(x, y) {
     
     // This function perform's a Welch's t-test.
-    
+    var c;
     // check whether the arrays contain more than just NaN values
-    for (var a in x) {
-        if (isNaN(x[a])) {
-            x[a] = null;
+    for (c in x) {
+        if (isNaN(x[c])) {
+            x[c] = null;
         }
     }
-    for (var a in y) {
-        if (isNaN(y[a])) {
-            y[a] = null;
+    for (c in y) {
+        if (isNaN(y[c])) {
+            y[c] = null;
         }
     }
-    if (!x.some(function(a){ return a !== null })) {
+    if (!x.some(function(a){ return a !== null; })) {
         return "failed";
-    } else if (!y.some(function(a){ return a !== null })) {
+    } else if (!y.some(function(a){ return a !== null; })) {
         return "failed";
     } else {
         // number of elements in array1
@@ -241,17 +241,17 @@ function nestedArraySort(x, descending, sortIndex) {
 function wilcoxonRankSumTest(xInput, yInput) {
     
     // This function calculates the Wilcoxon-rank sum test for two arrays.
-    
+    var c;
     var x = [];
     var y = [];
-    for (var a in xInput) {
-        if (xInput[a] && xInput[a] !== "null") {
-            x.push(+xInput[a]);
+    for (c in xInput) {
+        if (xInput[c] && xInput[c] !== "null") {
+            x.push(+xInput[c]);
         }
     }
-    for (var a in yInput) {
-        if (yInput[a] && yInput[a] !== "null") {
-            y.push(+yInput[a]);
+    for (c in yInput) {
+        if (yInput[c] && yInput[c] !== "null") {
+            y.push(+yInput[c]);
         }
     }
     var nx = x.length;
@@ -263,33 +263,33 @@ function wilcoxonRankSumTest(xInput, yInput) {
         var m = nx*ny/2;
         var s = Math.sqrt(nx*ny*(nx + ny + 1)/12);
         var xy = [];
-        for (var a in x) {
-            xy.push([x[a], 1]);
+        for (c in x) {
+            xy.push([x[c], 1]);
         }
-        for (var a in y) {
-            xy.push([y[a], 2]);
+        for (c in y) {
+            xy.push([y[c], 2]);
         }
         var xySorted = nestedArraySort(xy, false, 0);
         var values = [];
         var groups = [];
-        for (var a in xySorted) {
-            values.push(xySorted[a][0]);
-            groups.push(xySorted[a][1]);
+        for (c in xySorted) {
+            values.push(xySorted[c][0]);
+            groups.push(xySorted[c][1]);
         }
         var ranks = [];
-        for (var a in xySorted) {
-            var element = xySorted[a][0];
+        for (c in xySorted) {
+            var element = xySorted[c][0];
             var rank = values.indexOf(element) + 1;
             ranks.push(rank);
         }
         var rankSumX = 0;
         var rankSumY = 0;
-        for (var a in groups) {
-            var group = groups[a];
+        for (c in groups) {
+            var group = groups[c];
             if (group === 1) {
-                rankSumX += ranks[a];
+                rankSumX += ranks[c];
             } else {
-                rankSumY += ranks[a];
+                rankSumY += ranks[c];
             }
         }
         var u = nx*ny + nx*(nx + 1)/2 - rankSumX;
@@ -300,9 +300,9 @@ function wilcoxonRankSumTest(xInput, yInput) {
         *** calculate the p value using the numerical approximation
         *****************/
         // http://en.wikipedia.org/wiki/Error_function#Numerical_approximation
-        var x = z/Math.sqrt(2);
-        var t = 1/(1 + 0.5*x);
-        var tau = t*Math.exp(-Math.pow(x, 2) - 1.26551223 + 1.00002368*t + 0.37409196*Math.pow(t, 2) + 0.09678418*Math.pow(t, 3) - 0.18628806*Math.pow(t, 4) + 0.27886807*Math.pow(t, 5) - 1.13520398*Math.pow(t, 6) + 1.48851587*Math.pow(t, 7) - 0.82215223*Math.pow(t, 8) + 0.17087277*Math.pow(t, 9));
+        var xx = z/Math.sqrt(2);
+        var t = 1/(1 + 0.5*xx);
+        var tau = t*Math.exp(-Math.pow(xx, 2) - 1.26551223 + 1.00002368*t + 0.37409196*Math.pow(t, 2) + 0.09678418*Math.pow(t, 3) - 0.18628806*Math.pow(t, 4) + 0.27886807*Math.pow(t, 5) - 1.13520398*Math.pow(t, 6) + 1.48851587*Math.pow(t, 7) - 0.82215223*Math.pow(t, 8) + 0.17087277*Math.pow(t, 9));
         var erf = 1 - tau;
         var p = (1 - 0.5*(1 + erf))*2;
         return p;
