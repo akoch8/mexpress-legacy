@@ -50,16 +50,17 @@ function formatCorrelation(r, p) {
 function sortData(queryResult, sorter) {
     
     // sort the sample names based on the sorter
+
+    // declare the variables:
     var sortedSamples = [];
     var samples = [];
+    var sampleList = [];
     var sample, element, s, p, value, i;
 
     for (sample in queryResult["expressionData"]) {
         samples.push(sample);
     }
     var remainingSamples = samples;
-    
-    var sampleList = [];
 
     if (sorter === "expressionData") {
         var expressionList = [];
@@ -212,7 +213,7 @@ function updatePlot(queryResult, gene, source, numberOfSamples, sorter) {
 
 function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
 
-    // general plotting variables:
+    // declare the general plotting variables:
     // dimensions:
     var windowWidth = $(window).width();
     var inputWidth = $('.userInput').outerWidth();
@@ -306,6 +307,15 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                                 "50":"#F07746",
                                 "60":"#A17FAD",
                                 "61":"#8A38A8"};
+    
+    // declare the variables:
+    // these are all variables that are used several times, which is why they
+    // are all declared together here
+    var sample, pos, element, patient, s, annotationValue, e, expression, annotation, answer;
+    var ann, code, p, el, i, stat, r, rString, correlationColor, correlationWeight, pNum;
+    var significanceColor, significanceWeight;
+    var annotationCount, sampleNr, slideFieldCount, rectHeight, field, fieldName, slideField;
+
     // data variables:
     var numberOfProbes = queryResult['numberOfProbes'];
     var geneInfo = queryResult['geneInfo'];
@@ -326,8 +336,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     if (n > maxNumberOfAnnotationFields) {
         maxNumberOfAnnotationFields = n;
     }
-
-    var sample, pos, element, patient, s, annotationValue, e, expression, annotation, answer;
 
     for (sample in queryResult['annotation']) {
         for (annotation in queryResult['annotation'][sample]) {
@@ -476,7 +484,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     
     // create the stats object that will contain all the correlation and p values between the different data types
     var stats = {};
-    var ann, code, p;
     stats["expressionData"] = {};
     stats["sample type"] = {};
     stats["PAM50 subtype"] = {};
@@ -846,7 +853,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     // we need to adjust them for multiple hypothesis testing
     var allPValues = [];
     var allElements = [];
-    var el, i;
     for (e in stats[sorter]) {
         el = stats[sorter][e];
         if (el["rp"] && el["rp"] !== "failed") {
@@ -1733,9 +1739,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     // add the correlation values
     // loop through the probes and calculate the correlation value between the methylation and expression for each sample
     probeNr = 0;
-    var stat, r, rString, correlationColor, correlationWeight, pNum;
-    var significanceColor;
-    var significanceWeight;
     if (sorter === "expressionData") {
         for (pos in probePositions) {
             probeNr++;
@@ -1815,7 +1818,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
     }
     
-    var annotationCount, sampleNr, slideFieldCount, rectHeight, field, fieldName;
     if (queryResult['annotation'] !== "no_annotation") {
         // add the annotation data
         sampleNr = 0;
@@ -2348,7 +2350,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     }
     
     // add the biospecimen slide data
-    var slideField;
     if (queryResult['slide'] !== "no_data") {
         sampleNr = 0;
         var numberOfSlideFields = queryResult['slide']['numberOfSlideFields'];
