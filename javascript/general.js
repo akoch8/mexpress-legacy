@@ -10,7 +10,7 @@ $(function() {
     });
     
     // focus on the text input field
-    $("input[type=text]").focus();
+    $('input[type=text]').focus();
 
     // set the width of the plot container
     windowWidth = $(window).width();
@@ -33,18 +33,18 @@ $(function() {
     });
 
     // sample selection
-    $(".sampleSelectionElement").click(function() {
+    $('.sampleSelectionElement').on('click', function() {
         
         var clickedElement = $(this);
         // remove the selected class for every selected element
-        $(".sampleSelectionElement").each(function() {
+        $('.sampleSelectionElement').each(function() {
             
-            if ($(this).hasClass("selectedSample")) {
-                $(this).toggleClass("selectedSample");
+            if ($(this).hasClass('selectedSample')) {
+                $(this).toggleClass('selectedSample');
             }
             
         });
-        clickedElement.toggleClass("selectedSample");
+        clickedElement.toggleClass('selectedSample');
         
     });
     

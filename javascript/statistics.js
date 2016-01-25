@@ -4,7 +4,7 @@ function pAdjust(p, method) {
     // Currently, it only supports the Benjamini-Hochberg method ('bh').
     var c;
     // get the length of the p values array and use it to create an index array (1-based!)
-    if (method === "bh") {
+    if (method === 'bh') {
         var n = p.length;
         var i = [];
         for (c = n; c > 0; c--) {
@@ -50,7 +50,7 @@ function pearsonCorrelation(x, y) {
     var c;
     // check if the arrays have the same length
     if (x.length !== y.length) {
-        return "failed";
+        return 'failed';
     }
     // check if there are any missing values and remove them from both arrays if there are
     var newX = [];
@@ -91,7 +91,7 @@ function pearsonCorrelation(x, y) {
             p: p
         };
     } else {
-        return "failed";
+        return 'failed';
     }
     
 }
@@ -185,9 +185,9 @@ function tTest(x, y) {
         }
     }
     if (!x.some(function(a){ return a !== null; })) {
-        return "failed";
+        return 'failed';
     } else if (!y.some(function(a){ return a !== null; })) {
-        return "failed";
+        return 'failed';
     } else {
         // number of elements in array1
         var nx = x.length;
@@ -210,7 +210,7 @@ function tTest(x, y) {
             var answer = tDistribution(df, t);
             return answer;
         } else {
-            return "failed";
+            return 'failed';
         }
     }
     
@@ -245,19 +245,19 @@ function wilcoxonRankSumTest(xInput, yInput) {
     var x = [];
     var y = [];
     for (c in xInput) {
-        if (xInput[c] && xInput[c] !== "null") {
+        if (xInput[c] && xInput[c] !== 'null') {
             x.push(+xInput[c]);
         }
     }
     for (c in yInput) {
-        if (yInput[c] && yInput[c] !== "null") {
+        if (yInput[c] && yInput[c] !== 'null') {
             y.push(+yInput[c]);
         }
     }
     var nx = x.length;
     var ny = y.length;
     if (nx < 3 || ny < 3) {
-        return "failed";
+        return 'failed';
     } else {
         var n = nx + ny;
         var m = nx*ny/2;
