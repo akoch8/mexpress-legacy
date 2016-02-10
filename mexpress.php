@@ -19,14 +19,6 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
         <link rel="icon" type="image/png" href="images/m_icon.png">
         <link rel="stylesheet" type="text/css" href="css/global.css" />
         <link rel="stylesheet" type="text/css" href="css/mexpress.css" />
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-        <script type="text/javascript">
-            if (!window.jQuery) {
-                document.write('<script type="text/javascript" src="javascript/jquery-1.11.0.min.js"><\/script>');
-            }
-        </script>
-        <script type="text/javascript" src="javascript/d3.v3.min.js"></script>
-        <script type="text/javascript" src="javascript/jquery.autocomplete.min.js"></script>
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
         <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -131,6 +123,14 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                 <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2016
             </p>
         </footer>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript">
+            if (!window.jQuery) {
+                document.write('<script type="text/javascript" src="javascript/jquery-1.11.0.min.js"><\/script>');
+            }
+        </script>
+        <script type="text/javascript" src="javascript/d3.v3.min.js"></script>
+        <script type="text/javascript" src="javascript/jquery.autocomplete.min.js"></script>
         <script type="text/javascript" src="javascript/mexpress.min.js"></script>
     </body>
 </html>    
