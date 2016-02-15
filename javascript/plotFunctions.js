@@ -842,7 +842,7 @@ function drawLegend(r, svg, leftMargin, topMargin, geneColor, transcriptColor, c
         svg.append('text')
             .attr('x', xPos + 8)
             .attr('y', yPos + 18*(sampleTypeCounter + 1))
-            .text(sampleText + ' (' + code + ')');
+            .text(sampleText);
         sampleTypeCounter++;
     }
 
