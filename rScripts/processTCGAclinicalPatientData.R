@@ -17,6 +17,9 @@ args = commandArgs(trailingOnly = T)
 source = args[1]
 dirName = args[2]
 
+#print(paste("source = ", source, sep=""))
+#print(paste("directory = ", dirName, sep=""))
+
 # Specify the folder where the data files are stored.
 dataDir = paste(source, "/", dirName, sep="")
 # Ensure that the specified folder ends with a trailing forward slash.
@@ -38,6 +41,12 @@ clinical = clinical[-1,]
 clinicalParameters = read.table("clinicalParameters.txt", header=T, sep="\t", stringsAsFactors=F)
 selectedColumns = unlist(strsplit(clinicalParameters[clinicalParameters$tumorType == source,]$clinicalParameters, ","))
 selectedColumnsNames = unlist(strsplit(clinicalParameters[clinicalParameters$tumorType == source,]$shortNames, ","))
+# Check if we find all columns names in the clinical data.
+colNotFound = which(!selectedColumns %in% colnames(clinical))
+if (length(colNotFound) > 0){
+	selectedColumns = selectedColumns[-colNotFound]
+	selectedColumnsNames = selectedColumnsNames[-colNotFound]
+}
 # Select the desired columns and replace the column names by a shorter version.
 clinical = clinical[,selectedColumns]
 colnames(clinical) = selectedColumnsNames
@@ -48,6 +57,7 @@ for (t in 2:ncol(clinical)){
 	clinical[,t] = gsub("\\[Not Available\\]", "\\\\N", clinical[,t])
 	clinical[,t] = gsub("\\[Unknown\\]", "\\\\N", clinical[,t])
 	clinical[,t] = gsub("\\[Not Evaluated\\]", "\\\\N", clinical[,t])
+	clinical[,t] = gsub("\\[Discrepancy\\]", "\\\\N", clinical[,t])
 }
 
 # Go through the columns of the data frame with the clinical data.
@@ -107,7 +117,7 @@ for (t in 1:ncol(clinical)){
 	}
 	# HER2 receptor status
 	else if (colName == "her2_status"){
-		clinical$her2_status[clinical$her2_status == "Negative" | clinical$her2_status == "Indeterminate"] = 0
+		clinical$her2_status[clinical$her2_status == "Negative" | clinical$her2_status == "Indeterminate" | clinical$her2_status == "Equivocal"] = 0
 		clinical$her2_status[clinical$her2_status == "Positive"] = 1
 		sqlQuery = paste(sqlQuery, colName, " TINYINT(4),\n", sep="")
 	}
@@ -131,6 +141,11 @@ for (t in 1:ncol(clinical)){
 		clinical$history_of_colon_polyps[clinical$history_of_colon_polyps == "YES" | clinical$history_of_colon_polyps == "Yes"] = 1
 		sqlQuery = paste(sqlQuery, colName, " TINYINT(4),\n", sep="")
 	}
+	# presence of colon polyps
+	else if (colName == "colon_polyps_present"){
+		clinical$colon_polyps_present[clinical$colon_polyps_present == "NO" | clinical$colon_polyps_present == "No"] = 0
+		clinical$colon_polyps_present[clinical$colon_polyps_present == "YES" | clinical$colon_polyps_present == "Yes"] = 1
+	}
 	# hpv_status by p16 testing
 	else if (colName == "hpv_status_p16_testing"){
 		clinical$hpv_status_p16_testing[clinical$hpv_status_p16_testing == "Negative"] = 0
@@ -150,12 +165,6 @@ for (t in 1:ncol(clinical)){
 		clinical$family_history_of_brain_tumor[clinical$family_history_of_brain_tumor == "YES" | clinical$family_history_of_brain_tumor == "Yes"] = 1
 		sqlQuery = paste(sqlQuery, colName, " TINYINT(4),\n", sep="")
 	}
-	# history of hepatocellular carcinoma risk factor
-	else if (colName == "hepato_carcinoma_risk_factor"){
-		clinical$hepato_carcinoma_risk_factor[clinical$hepato_carcinoma_risk_factor == "None"] = 0
-		clinical$hepato_carcinoma_risk_factor[clinical$hepato_carcinoma_risk_factor != "None" & clinical$hepato_carcinoma_risk_factor != "\\N"] = 1
-		sqlQuery = paste(sqlQuery, colName, " TINYINT(4),\n", sep="")
-	}
 	# adjacent hepatic tissue inflammation extent
 	else if (colName == "hepatic_tissue_inflammation"){
 		clinical$hepatic_tissue_inflammation[clinical$hepatic_tissue_inflammation == "None"] = 0
@@ -164,13 +173,16 @@ for (t in 1:ncol(clinical)){
 		sqlQuery = paste(sqlQuery, colName, " TINYINT(4),\n", sep="")
 	}
 	# liver fibrosis ishak score
-	else if (colName == "liver_fibrosis_ishak_score"){
-		clinical$liver_fibrosis_ishak_score = gsub(" - .+$", "", clinical$liver_fibrosis_ishak_score)
-		clinical$liver_fibrosis_ishak_score[clinical$liver_fibrosis_ishak_score == "1"] = 1
-		clinical$liver_fibrosis_ishak_score[clinical$liver_fibrosis_ishak_score == "1,2"] = 1.5
-		clinical$liver_fibrosis_ishak_score[clinical$liver_fibrosis_ishak_score == "3,4"] = 3.5
-		clinical$liver_fibrosis_ishak_score[clinical$liver_fibrosis_ishak_score == "5"] = 5
-		clinical$liver_fibrosis_ishak_score[clinical$liver_fibrosis_ishak_score == "6"] = 6
+	else if (colName == "fibrosis_ishak_score"){
+		clinical$fibrosis_ishak_score = gsub(" - .+$", "", clinical$fibrosis_ishak_score)
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "1"] = 1
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "1,2"] = 1.5
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "2"] = 2
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "3"] = 3
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "3,4"] = 3.5
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "4"] = 4
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "5"] = 5
+		clinical$fibrosis_ishak_score[clinical$fibrosis_ishak_score == "6"] = 6
 		sqlQuery = paste(sqlQuery, colName, " DECIMAL(2,1),\n", sep="")
 	}
 	# history of diabetes
@@ -261,6 +273,46 @@ for (t in 1:ncol(clinical)){
 		clinical$eye_color[clinical$eye_color == "Brown"] = 2
 		clinical$eye_color[clinical$eye_color == "Green"] = 3
 		sqlQuery = paste(sqlQuery, colName, " TINYINT(4),\n", sep="")
+	}
+	# venous invasion
+	else if (colName == "venous_invasion"){
+		clinical$venous_invasion[clinical$venous_invasion == "NO" | clinical$venous_invasion == "No"] = 0
+		clinical$venous_invasion[clinical$venous_invasion == "YES" | clinical$venous_invasion == "Yes"] = 1
+	}
+	# lymphatic invasion
+	else if (colName == "lymphatic_invasion"){
+		clinical$lymphatic_invasion[clinical$lymphatic_invasion == "NO" | clinical$lymphatic_invasion == "No"] = 0
+		clinical$lymphatic_invasion[clinical$lymphatic_invasion == "YES" | clinical$lymphatic_invasion == "Yes"] = 1
+	}
+	# presence of lymphovascular invasion
+	else if (colName == "lymphovascular_invasion_present"){
+		clinical$lymphovascular_invasion_present[clinical$lymphovascular_invasion_present == "NO" | clinical$lymphovascular_invasion_present == "No"] = 0
+		clinical$lymphovascular_invasion_present[clinical$lymphovascular_invasion_present == "YES" | clinical$lymphovascular_invasion_present == "Yes"] = 1
+	}
+	# presence of perineural invasion
+	else if (colName == "perineural_invasion_present"){
+		clinical$perineural_invasion_present[clinical$perineural_invasion_present == "NO" | clinical$perineural_invasion_present == "No"] = 0
+		clinical$perineural_invasion_present[clinical$perineural_invasion_present == "YES" | clinical$perineural_invasion_present == "Yes"] = 1
+	}
+	# family history of cancer
+	else if (colName == "family_history_of_cancer"){
+		clinical$family_history_of_cancer[clinical$family_history_of_cancer == "NO" | clinical$family_history_of_cancer == "No"] = 0
+		clinical$family_history_of_cancer[clinical$family_history_of_cancer == "YES" | clinical$family_history_of_cancer == "Yes"] = 1
+	}
+	# tumor depth
+	else if (colName == "tumor_depth"){
+		clinical$tumor_depth[clinical$tumor_depth == "Deep"] = 3
+		clinical$tumor_depth[clinical$tumor_depth == "Superficial"] = 1
+	}
+	# multifocal tumor
+	else if (colName == "tumor_multifocal"){
+		clinical$tumor_multifocal[clinical$tumor_multifocal == "NO" | clinical$tumor_multifocal == "No"] = 0
+		clinical$tumor_multifocal[clinical$tumor_multifocal == "YES" | clinical$tumor_multifocal == "Yes"] = 1
+	}
+	# history of hormone therapy
+	else if (colName == "hormone_therapy"){
+		clinical$hormone_therapy[grep("^No.+", clinical$hormone_therapy)] = 0
+		clinical$hormone_therapy[grep("^Yes.+", clinical$hormone_therapy)] = 1
 	}
 	# no transformation of the data was necessary, still need to add it to the query
 	else {
