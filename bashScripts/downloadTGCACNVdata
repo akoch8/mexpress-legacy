@@ -13,28 +13,32 @@
 function usage
 {
     echo
-    echo "Usage: downloadTCGACNVdata -t tumorType"
+    echo "Usage: downloadTCGACNVdata -t tumorType -f fullTumorName -a geneAnnotationFile -n geneNamesFile"
     echo
 }
 
 tumorType=
 fullTumorTypeName=
 geneAnnotationFile=
+geneNamesFile=
 if [ "$1" == "" ]; then
     usage
     exit 1
 fi
 while [ "$1" != "" ]; do
     case $1 in
-        -t | --tumor )      shift
-                            tumorType=$1
-                            ;;
-        -f | --fullname )   shift
-                            fullTumorTypeName=$1
-                            ;;
-        -a | --annotation ) shift
-                            geneAnnotationFile=$1
-                            ;;
+        -t | --tumor )              shift
+                                    tumorType=$1
+                                    ;;
+        -f | --fullname )           shift
+                                    fullTumorTypeName=$1
+                                    ;;
+        -a | --geneAnnotationFile ) shift
+                                    geneAnnotationFile=$1
+                                    ;;
+        -n | --geneNamesFile )      shift
+                                    geneNamesFile=$1
+                                    ;;
         * )                 usage
                             exit 1
     esac
@@ -105,8 +109,8 @@ else
         # and mage-tab files from the data folder name.
         identifier=${dirName%.0}
         identifier=${identifier//broad\.mit\.edu_*Level_3\.*\./}
-        mageTabUrl="${url}/broad.mit.edu_COAD.Genome_Wide_SNP_6.mage-tab.1.${identifier}.0.tar.gz"
-        mageDir="broad.mit.edu_COAD.Genome_Wide_SNP_6.mage-tab.1.${identifier}.0"
+        mageTabUrl="${url}broad.mit.edu_${tumorType^^}.Genome_Wide_SNP_6.mage-tab.1.${identifier}.0.tar.gz"
+        mageDir="broad.mit.edu_${tumorType}.Genome_Wide_SNP_6.mage-tab.1.${identifier}.0"
         if [ ! -d "${tumorType}/${mageDir}" ]; then
             wget -q -O- "${mageTabUrl}" | tar -xz -C "${tumorType}" &
         fi
@@ -124,6 +128,6 @@ else
     rm "${tumorType}"/*mage-tab*/*.idf.txt
     # Run the R script to process the CNV data.
     echo "processing..."
-    Rscript processTCGAcnv.R "${tumorType}" "${fullTumorTypeName}" "${geneAnnotationFile}"
+    Rscript processTCGAcnv.R "${tumorType}" "${fullTumorTypeName}" "${geneAnnotationFile}" "${geneNamesFile}"
 fi
-echo "This is the end..."
+echo "Done..."

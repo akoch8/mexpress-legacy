@@ -3,10 +3,12 @@
 ### from TCGA and to create a sql script to load the data in mexpress.
 ###
 ### usage:
-### Rscript processTCGAcnv.R source full_source_name path/to/gene/annotation/file
+### Rscript processTCGAcnv.R source full_source_name path/to/gene/annotation/file path/to/gene/names/file
 ### The gene annotation file should contain the gene annotation data from UCSC
 ### in the following format:
 ### Ensembl ID | HGNC symbol | chr | gene start | gene end | strand
+### The gene names file contains a single column with the HGMC symbols of the genes for which there is
+### TCGA expression data.
 ###
 ##
 #
@@ -23,6 +25,7 @@ source = args[1]
 fullSourceName = args[2]
 fullSourceName = gsub("_", " ", fullSourceName)
 geneAnnFile = args[3]
+geneNamesFile = args[4]
 
 # Specify the folder where the data files are stored.
 dataDir = sub("/$", "", source)
@@ -58,55 +61,64 @@ allAnn = unique(allAnn)
 # The annotation data we previously extracted from the mage-tab files is used to link
 # the CNV data to the corresponding TCGA sample barcode.
 geneAnn = fread(geneAnnFile, data.table=F)
-geneAnn = geneAnn[order(geneAnn$hgnc_symbol),]
-cnv = data.frame(geneAnn$hgnc_symbol, stringsAsFactors=F)
-colnames(cnv) = "geneName"
-print("processing CNV data folders...")
-count = 10
-for (t in 1:length(dataFolders)){
-	if (t == floor(length(dataFolders)/count)){
-		print(paste((11 - count)*10, "%", sep=""))
-		count = count - 1
-	}
-	dataFolder = paste(source, "/", dataFolders[t], sep="")
-	dataFiles = dir(dataFolder)
-	for (i in 1:length(dataFiles)){
-		data = fread(paste(dataFolder, "/", dataFiles[i], sep=""), data.table=F)
-		barcode = allAnn[allAnn$sample == data$Sample[1],]$barcode
-		cnv[,barcode]= rep(NA, nrow(cnv))
-		for (g in 1:nrow(cnv)){
-			geneStart = geneAnn$start[g]
-			geneEnd = geneAnn$end[g]
-			geneChr = geneAnn$chr[g]
-			segMean = data[data$Chromosome == geneChr & data$Start <= geneStart & data$End >= geneEnd,]$Segment_Mean
-			if (length(segMean) != 0){
-				cnv[g,barcode] = segMean
-			}
-		}
-	}
+geneNames = fread(geneNamesFile, data.table=F, header=F)
+geneAnn = geneAnn[geneAnn$hgnc_symbol %in% geneNames[,1],]
+#geneAnn = geneAnn[order(geneAnn$hgnc_symbol),]
+# Create a list of the gene annotations by splitting the genes up by chromosome.
+# This will speed up processing later on.
+geneAnnList = list()
+uniqueChr = unique(geneAnn$chr)
+for (t in 1:length(uniqueChr)){
+	geneAnnList[[uniqueChr[t]]] = geneAnn[geneAnn$chr == uniqueChr[t],]
 }
-#write.table(cnv, paste(source, "/tcga_cnv_data_", source, ".txt", sep=""), col.names=T, row.names=F, quote=F, sep="\t")
 
-#cnv = fread("~/Sites/mexpress_local/data/cnv/tcga_cnv_data_coad.txt", data.table=F)
-cnv = unique(cnv)
+print("processing CNV data folders...")
+# Find all the files we need to process.
+cnvDataFiles = vector()
+for (t in 1:length(dataFolders)){
+	dataFolder = paste(source, "/", dataFolders[t], sep="")
+	cnvDataFiles = c(cnvDataFiles, paste(dataFolder, "/", dir(dataFolder), sep=""))
+}
+print(paste("processing ", length(cnvDataFiles), " CNV data files...", sep=""))
+# Get the CN data.
+cnvData = lapply(cnvDataFiles, function(x, g){	
+	segmentData = suppressWarnings(fread(x, data.table=F))
+	segChr = unique(segmentData$Chromosome)
+	sampleCnvData = list()
+	for (t in 1:length(segChr)){
+		chrAnn = g[[segChr[t]]]
+		chrSeg = segmentData[segmentData$Chromosome == segChr[t],]
+		chrAnn$cn = apply(chrAnn, 1, function(xx, s){
+			segMean = s[s$Start <= xx[4] & s$End >= xx[5],]$Segment_Mean
+			return(ifelse(length(segMean) !=0, mean(segMean, na.rm=T), NA))
+		}, s=chrSeg)
+		sampleCnvData[[t]] = chrAnn[,c("hgnc_symbol", "cn")]
+	}
+	# Combine the CN data of the different chromosomes.
+	sampleCnvData = do.call("rbind", sampleCnvData)	
+	return(sampleCnvData)
+}, g=geneAnnList)
+# Combine all the data in a single table.
+cnvDataTable = do.call("cbind", cnvData)
+cnvDataTable = cnvDataTable[,c(1, grep("cn", colnames(cnvDataTable)))]
+# Get the sample names.
+cnvSamples = sapply(cnvDataFiles, function(x, a){
+	data = fread(x, data.table=F, nrows=1)
+	barcode = a[a$sample == data$Sample[1],]$barcode
+	return(barcode)
+}, a=allAnn)
+# Add the sample names to the CN data.
+colnames(cnvDataTable)[2:ncol(cnvDataTable)] = cnvSamples
 # Remove rows with only NAs.
-cnv = cnv[rowSums(!is.na(cnv[,-1])) != 0,]
-
-# Aggregate the duplicate gene names.
-duplicateGenes = cnv$geneName[duplicated(cnv$geneName)]
-dup = cnv[cnv$geneName %in% duplicateGenes,]
-dup = aggregate(dup[,-1], by=list(dup$geneName), FUN=mean)
-colnames(dup)[1] = "geneName"
-cnv = cnv[!cnv$geneName %in% duplicateGenes,]
-cnv = rbind(cnv, dup)
+cnvDataTable = cnvDataTable[rowSums(!is.na(cnvDataTable[,-1])) != 0,]
 
 # Aggregate the duplicate samples.
-colnames(cnv) = sub("-.{3}-.{4}-.{2}$", "", colnames(cnv))
-colnames(cnv) = sub("[ABCDEFGHIJKLMNOPQRSTUVWXYZ]$", "", colnames(cnv))
-duplicatedSamples = colnames(cnv)[duplicated(colnames(cnv))]
+colnames(cnvDataTable) = sub("-.{3}-.{4}-.{2}$", "", colnames(cnvDataTable))
+colnames(cnvDataTable) = sub("[ABCDEFGHIJKLMNOPQRSTUVWXYZ]$", "", colnames(cnvDataTable))
+duplicatedSamples = colnames(cnvDataTable)[duplicated(colnames(cnvDataTable))]
 duplicatedSamples = unique(duplicatedSamples)
-dup = cnv[,colnames(cnv) %in% duplicatedSamples]
-cnv = cnv[,!colnames(cnv) %in% duplicatedSamples]
+dup = cnvDataTable[,colnames(cnvDataTable) %in% duplicatedSamples]
+cnv = cnvDataTable[,!colnames(cnvDataTable) %in% duplicatedSamples]
 dupResult = matrix(nrow=nrow(dup), ncol=0)
 for (t in 1:length(duplicatedSamples)){
 	sub = dup[,grep(duplicatedSamples[t], colnames(dup))]
@@ -136,9 +148,9 @@ sqlQuery = sub(",\n$", "\n", sqlQuery)
 
 # Add the LOAD DATA statements to the sql query.
 if (ncol(cnv) >= 999){
-	sqlQuery = paste(sqlQuery, ")\nENGINE = MyISAM;\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
+	sqlQuery = paste(sqlQuery, ")\nENGINE = MyISAM;\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nCREATE INDEX gene_name_index ON ", tableName, " (gene_name);", sep="")
 } else {
-	sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nALTER TABLE ", tableName, " ADD PRIMARY KEY (id);", sep="")
+	sqlQuery = paste(sqlQuery, ");\nLOAD DATA LOCAL INFILE '", dataFile, "' INTO TABLE ", tableName, " IGNORE 1 LINES;\nCREATE INDEX gene_name_index ON ", tableName, " (gene_name);", sep="")
 }
 
 # Write the sql queries to a file.
@@ -147,6 +159,3 @@ cat(dataInfoQuery, file=paste(source, "/update_data_information_methylation_", s
 
 # Write the result to a file.
 write.table(cnv, dataFile, col.names=T, row.names=F, quote=F, sep="\t")
-
-
-
