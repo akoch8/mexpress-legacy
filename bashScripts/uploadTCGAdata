@@ -29,8 +29,6 @@ while [ "$1" != "" ]; do
     shift
 done
 
-#echo "tumor = ${tumorType}"
-
 if [ ${tumorType} == "" ]; then
     usage
     exit
@@ -43,7 +41,7 @@ pass=
 
 # Specify the different data types.
 dataTypes=(clinical_patient clinical_sample)
-# Check if any new expression or methylation data was downloaded.
+# Check if any new expression, methylation or CNV data was downloaded.
 # We don't want to reload existing data if nothing new has been added.
 if [ -f upload_expression.txt ] && grep -q ${tumorType} upload_expression.txt; then
     dataTypes+=(expression)
@@ -55,6 +53,11 @@ if [ -f upload_methylation.txt ] && grep -q ${tumorType} upload_methylation.txt;
 else
     echo "No new methylation data."
 fi
+if [ -f upload_cnv.txt ] && grep -q ${tumorType} upload_cnv.txt; then
+    dataTypes+=(cnv)
+else
+    echo "No new CNV data."
+fi
 
 DATE=`date +%Y%m%d`
 HOUR=`date +%H%M%S`
@@ -63,7 +66,6 @@ HOUR=`date +%H%M%S`
 # If they are, dump them in an archive folder before uploading the new data.
 for d in ${dataTypes[@]}; do
     if [ -f "${tumorType}"/load_"${d}"_"${tumorType}".sql ]; then
-        #echo "uploading ${d} data..."
         if [ $(mysql -N -s -u ${user} -p${pass} -e "select count(*) from information_schema.tables where table_schema='${database}' and table_name='${d}_${tumorType}';") -eq 1 ]; then
             # Check if there is an archive folder and create one if necessary.
             if [ ! -d "${tumorType}"/archive ]; then
@@ -76,13 +78,12 @@ for d in ${dataTypes[@]}; do
         echo "Could not find ${tumorType}/load_${d}_${tumorType}.sql, moving on."
     fi
 done
-# Loop through the data types a second time to update the data_information table (only relevant for expression and methylation data).
-# This way the tumor type will only show up on the website after both expression and methylation data have been uploaded to the database.
+# Loop through the data types a second time to update the data_information table (only relevant for expression, methylation and CNV data).
+# This way the tumor type will only show up on the website after these data have been uploaded to the database.
 for d in ${dataTypes[@]}; do
-    if [ ${d} == "expression" ] || [ ${d} == "methylation" ]; then
+    if [ ${d} == "expression" ] || [ ${d} == "methylation" ] || [ ${d} == "cnv" ]; then
         if [ -f "${tumorType}"/load_"${d}"_"${tumorType}".sql ]; then
-            #echo "updating the data_information table..."
-            # if the data_information table already exists, then archive it.
+            # If the data_information table already exists, then archive it.
             if [ $(mysql -N -s -u ${user} -p${pass} -e "select count(*) from information_schema.tables where table_schema='${database}' and table_name='data_information';") -eq 1 ]; then
                 # Check if there is an archive folder and create one if necessary.
                 if [ ! -d data_information_archive ]; then
@@ -98,4 +99,3 @@ for d in ${dataTypes[@]}; do
         fi
     fi
 done
-#echo "done!"
