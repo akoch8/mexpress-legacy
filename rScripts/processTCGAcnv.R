@@ -140,7 +140,7 @@ dataInfoQuery = paste("DELETE FROM data_information WHERE source = '", source, "
 for (t in 2:ncol(cnv)){
 	sample = colnames(cnv)[t]
 	sqlQuery = paste(sqlQuery, paste(sample, " DECIMAL(6,4),\n", sep=""))
-	dataInfoQuery = paste(dataInfoQuery, "INSERT INTO data_information (sample_name, data_table, source, full_source_name, experiment_type, technology, batch) VALUES ('", sample, "', '", tableName, "', '", source, "', '", fullSourceName, "', 'cnv', 'snp array');\n", sep="")
+	dataInfoQuery = paste(dataInfoQuery, "INSERT INTO data_information (sample_name, data_table, source, full_source_name, experiment_type, technology) VALUES ('", sample, "', '", tableName, "', '", source, "', '", fullSourceName, "', 'cnv', 'snp array');\n", sep="")
 }
 
 # Remove the trailing comma from the sql query.
@@ -155,7 +155,7 @@ if (ncol(cnv) >= 999){
 
 # Write the sql queries to a file.
 cat(sqlQuery, file=paste(source, "/load_", tableName, ".sql", sep=""), sep="")
-cat(dataInfoQuery, file=paste(source, "/update_data_information_methylation_", source, ".sql", sep=""), sep="")
+cat(dataInfoQuery, file=paste(source, "/update_data_information_cnv_", source, ".sql", sep=""), sep="")
 
 # Write the result to a file.
 write.table(cnv, dataFile, col.names=T, row.names=F, quote=F, sep="\t")
