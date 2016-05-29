@@ -1,14 +1,14 @@
 #!/bin/bash
 
-### Program fl0w
+### Program flow:
 ## - get tumor type
 ## - build url based on user input
 ## - wget the necessary file name(s)
 ## - check if the files already exist locally
 ## - if there are new or updated files available, download them
 ## - unzip the files
-## - process them using the appropriate R script so they're ready
-##   to be uploaded
+## - process them using the appropriate R script so they're ready to
+##   be uploaded
 
 function usage
 {
@@ -45,25 +45,22 @@ if [ ${tumorType} == "" ] || [ ${fullTumorTypeName} == "" ]; then
     exit 1
 fi
 
-# Download the most recent version of the TCGA metadata
+# Download the most recent version of the TCGA metadata.
 echo "checking metadata..."
 # The metadata file contains information on every single sample
 # in the TCGA database.
 if [ -f metadata.current.txt ]; then
-    #echo "updating..."
     wget -q -N https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/other/metadata/metadata.current.txt
 else
-    #echo "downloading..."
     wget -q -S https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/other/metadata/metadata.current.txt
 fi
-#echo "done"
 
 if [ ! -d ${tumorType} ]; then
     mkdir ${tumorType}
 fi
 
 echo "checking RNASeqV2 data..."
-# Download the RNASeqV2 data from TCGA.
+# Download the RNASeqV2 data.
 # Start by finding the latest version of the expression data:
 url="https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/${tumorType}/cgcc/unc.edu/illuminahiseq_rnaseqv2/rnaseqv2/?C=M;O=A"
 fileName=$(wget -q -O - ${url} | grep -o -E "\"unc\.edu_.+Level_3.+\.tar.gz\"" | tail -1)
@@ -71,21 +68,14 @@ fileName=${fileName//\"/}
 dirName=${fileName%.tar.gz}
 
 if [ -d ${tumorType}/${dirName} ]; then
-    #echo
     echo "There is no new TCGA expression (RNASeqV2) data available."
-    #echo
 else
     url=${url%?C=M;O=A}
     url=${url}${fileName}
-    #echo "downloading..."
-    #echo "file = ${fileName}"
-    #echo "url = ${url}"
     wget -q -O "${tumorType}/${fileName}" $url
-    #echo "extracting..."
     tar -zxf "${tumorType}/${fileName}" -C "${tumorType}"
     rm "${tumorType}/${fileName}"
     rm "${tumorType}/${dirName}/"*.txt "${tumorType}/${dirName}/"*isoforms* "${tumorType}/${dirName}/"*.rsem.genes.results
-    #echo "processing..."
     Rscript processTCGArnaseqv2.R "${tumorType}" "${fullTumorTypeName}" "${dirName}"
     mv *_expression_"${tumorType}".sql "${tumorType}"/.
     mv tcga_rnaseqv2_data_"${tumorType}".txt "${tumorType}"/.
@@ -94,17 +84,14 @@ else
     # This will save a lot of disk space on the server.
     # The folder is not removed, as it's used to check which version of
     # the data has been downloaded.
-    #echo "cleaning up..."
     rm "${tumorType}/${dirName}"/*
-    #echo "done!"
     echo "${tumorType}" >> upload_expression.txt
 fi
 
 echo "checking HumanMethylation450 data..."
-# Download the Infinium 450k DNA methylation data from TCGA.
+# Download the Infinium 450k DNA methylation data.
 url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/${tumorType}/cgcc/jhu-usc.edu/humanmethylation450/methylation/
 fileNames=(`wget -q -O - ${url} | grep -o -E "\"jhu-usc\.edu_.+Level_3.+\.tar.gz\""`)
-#echo "downloading..."
 downloadedInfiniumFileCount=0
 downloadedFiles=()
 for i in "${fileNames[@]}"; do
@@ -115,8 +102,6 @@ for i in "${fileNames[@]}"; do
     # If it doesn't: download the methylation data.
     if [ ! -d ${tumorType}/${dirName} ]; then
         urli=${url}${fileName}
-        #echo "file = ${fileName}"
-        #echo "url = ${urli}"
         downloadedFiles+=("${fileName}")
         wget -q -O "${tumorType}/${fileName}" $urli &
         downloadedInfiniumFileCount=`expr $downloadedInfiniumFileCount + 1`
@@ -130,11 +115,8 @@ wait
 if [ $downloadedInfiniumFileCount -eq 0 ]; then
     # No files were downloaded, meaning that all the data was already
     # available locally.
-    #echo
     echo "There is no new TCGA DNA methylation (HumanMethylation450) data available."
-    #echo
 else
-    #echo "extracting..."
     echo "New TCGA DNA methylation (HumanMethylation450) data found!"
     for i in "${downloadedFiles[@]}"; do
         fileName=
@@ -158,13 +140,10 @@ else
         # Clean up any remaining files in the TCGA data folder
         rm "${tumorType}/${dirName}"/*
     done
-    echo "processing..."
     Rscript processTCGAhumanmethylation450.R "${tumorType}" "${fullTumorTypeName}" humanMethylation450temp
     # Clean up the TCGA data. We have combined the data in one file,
     # so we don't need the separate files anymore.
-    echo "cleaning up..."
     rm -rf "${tumorType}"/humanMethylation450temp
-    #echo "done!"
     echo "${tumorType}" >> upload_methylation.txt
 fi
 
@@ -175,10 +154,8 @@ if [ ! -d "${tumorType}/clinicalPatient/" ]; then
 fi
 url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/${tumorType}/bcr/biotab/clin/nationwidechildrens.org_clinical_patient_${tumorType}.txt
 if [ -f "${tumorType}/clinicalPatient/nationwidechildrens.org_clinical_patient_${tumorType}.txt" ]; then
-    #echo "downloading..."
     wget -q -N -O "${tumorType}/clinicalPatient/nationwidechildrens.org_clinical_patient_${tumorType}.txt" $url
 else
-    #echo "downloading..."
     wget -q -S -O "${tumorType}/clinicalPatient/nationwidechildrens.org_clinical_patient_${tumorType}.txt" $url
 fi
 # Check if the downloaded file contains data
@@ -207,7 +184,6 @@ fi
 # for each cancer type. The column names we are interested in
 # can be found in the file clinicalPatientData.txt.
 Rscript processTCGAclinicalPatientData.R "${tumorType}" clinicalPatient
-#echo "done"
 
 # Download the most recent version of the sample slide data.
 echo "checking sample slide data..."
@@ -216,10 +192,8 @@ if [ ! -d "${tumorType}/sampleSlide/" ]; then
 fi
 url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/${tumorType}/bcr/biotab/clin/nationwidechildrens.org_biospecimen_slide_${tumorType}.txt
 if [ -f "${tumorType}/sampleSlide/nationwidechildrens.org_biospecimen_slide_${tumorType}.txt" ]; then
-    #echo "downloading..."
     wget -q -N -O "${tumorType}/sampleSlide/nationwidechildrens.org_biospecimen_slide_${tumorType}.txt" $url
 else
-    #echo "downloading..."
     wget -q -S -O "${tumorType}/sampleSlide/nationwidechildrens.org_biospecimen_slide_${tumorType}.txt" $url
 fi
 # Check if the downloaded file contains data
