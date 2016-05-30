@@ -13,26 +13,34 @@
 function usage
 {
     echo
-    echo "Usage: downloadTCGAdata -t tumorType -f fullTumorName"
+    echo "Usage: downloadTCGAdata -t tumorType -f fullTumorName -a path/to/gene/annotation/file -n path/to/TCGA/gene/names/file"
     echo
 }
 
 tumorType=
 fullTumorTypeName=
+geneAnnotationFile=
+geneNamesFile=
 if [ "$1" == "" ]; then
     usage
     exit 1
 fi
 while [ "$1" != "" ]; do
     case $1 in
-        -t | --tumor )      shift
-                            tumorType=$1
-                            ;;
-        -f | --fullname )   shift
-                            fullTumorTypeName=$1
-                            ;;
-        * )                 usage
-                            exit 1
+        -t | --tumor )              shift
+                                    tumorType=$1
+                                    ;;
+        -f | --fullname )           shift
+                                    fullTumorTypeName=$1
+                                    ;;
+        -a | --geneAnnotationFile ) shift
+                                    geneAnnotationFile=$1
+                                    ;;
+        -n | --geneNamesFile )      shift
+                                    geneNamesFile=$1
+                                    ;;
+        * )                         usage
+                                    exit 1
     esac
     shift
 done
@@ -40,7 +48,7 @@ done
 echo "tumor = ${tumorType}"
 echo "full name = ${fullTumorTypeName}"
 
-if [ ${tumorType} == "" ] || [ ${fullTumorTypeName} == "" ]; then
+if [ ${tumorType} == "" ] || [ ${fullTumorTypeName} == "" ] || [ ${geneAnnotationFile} == "" ] || [ ${geneNamesFile} == "" ]; then
     usage
     exit 1
 fi
@@ -145,6 +153,87 @@ else
     # so we don't need the separate files anymore.
     rm -rf "${tumorType}"/humanMethylation450temp
     echo "${tumorType}" >> upload_methylation.txt
+fi
+
+echo "checking CNV data..."
+# Download the CNV data.
+# We need two types of directories from TCGA:
+# 1. The first one (*Level_3*.tar.gz) contains the actual CNV data file
+#    (*.hg19.seq.txt) and a file that links the data file name to an
+#    identifier (MANIFEST.TXT),
+# 2. The second one (*mage-tab*.tar.gz) contains a file that links the
+#    identifier to the TCGA sample barcode (which is used as the sample
+#    name in MEXPRESS)
+#
+url="https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/${tumorType}/cgcc/broad.mit.edu/genome_wide_snp_6/snp/"
+fileNames=(`wget -q -O - ${url} | grep -o -E "\"broad\.mit\.edu_.+Level_3.+.0/\""`)
+downloadedFileCount=0
+downloadedFiles=()
+for i in "${fileNames[@]}"; do
+    dirName=${i//\"/}
+    fileName=${dirName}
+    fileName=${fileName//\//.tar.gz}
+    # Check if the folder already exists locally.
+    # If it doesn't: download the CNV data.
+    if [ ! -d ${tumorType}/${dirName} ]; then
+        urli=${url}${fileName}
+        downloadedFiles+=("${fileName}")
+        wget -q -O- $urli | tar -xz -C "${tumorType}" &
+        downloadedFileCount=`expr $downloadedFileCount + 1`
+    fi
+    while (( $(jobs | wc -l) >= 6 )); do
+        sleep 0.1
+        jobs > /dev/null
+    done
+done
+wait
+if [ $downloadedFileCount -eq 0 ]; then
+    # No files were downloaded, meaning that all the data was already
+    # available locally.
+    echo "There is no new TCGA CNV data available."
+else
+    echo "New TCGA DNA methylation (HumanMethylation450) data found!"
+    # Go through the extracted folders and:
+    # 1. Remove the files we don't need.
+    # 2. Download the appropriate mage-tab file (the mage-tab files
+    #    and the data folders are linked through their names)
+    for i in "${downloadedFiles[@]}"; do
+        fileName=${i}
+        dirName=${fileName%.tar.gz}
+        # Remove files we don't need.
+        rm "${tumorType}/${dirName}"/*.hg18.seg.txt
+        rm "${tumorType}/${dirName}"/*_hg18.seg.txt
+        rm "${tumorType}/${dirName}"/*_hg19.seg.txt
+        rm "${tumorType}/${dirName}"/README_DCC.txt
+        rm "${tumorType}/${dirName}"/MANIFEST.txt
+        if [ -f "${tumorType}/${dirName}"/CHANGES_DCC.txt ]; then
+            rm "${tumorType}/${dirName}"/CHANGES_DCC.txt
+        fi
+        # Download the mage-tabe file.
+        # Start by extracting the identifier that links the data folders
+        # and mage-tab files from the data folder name.
+        identifier=${dirName%.0}
+        identifier=${identifier//broad\.mit\.edu_*Level_3\.*\./}
+        mageTabUrl="${url}broad.mit.edu_${tumorType^^}.Genome_Wide_SNP_6.mage-tab.1.${identifier}.0.tar.gz"
+        mageDir="broad.mit.edu_${tumorType}.Genome_Wide_SNP_6.mage-tab.1.${identifier}.0"
+        if [ ! -d "${tumorType}/${mageDir}" ]; then
+            wget -q -O- "${mageTabUrl}" | tar -xz -C "${tumorType}" &
+        fi
+        while (( $(jobs | wc -l) >= 6 )); do
+            sleep 0.1
+            jobs > /dev/null
+        done
+    done
+    wait
+    # Remove the mage-tab files we don't need.
+    rm "${tumorType}"/*mage-tab*/CHANGES_DCC.txt
+    rm "${tumorType}"/*mage-tab*/DESCRIPTION.txt
+    rm "${tumorType}"/*mage-tab*/README_DCC.txt
+    rm "${tumorType}"/*mage-tab*/MANIFEST.txt
+    rm "${tumorType}"/*mage-tab*/*.idf.txt
+    # Run the R script to process the CNV data.
+    Rscript processTCGAcnv.R "${tumorType}" "${fullTumorTypeName}" "${geneAnnotationFile}" "${geneNamesFile}"
+    echo "${tumorType}" >> upload_cnv.txt
 fi
 
 # Download the most recent version of the clinical patient data.
