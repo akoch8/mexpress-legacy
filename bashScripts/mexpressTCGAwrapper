@@ -2,7 +2,8 @@
 
 ### Program fl0w
 ## - read the file that contains the tumor types we need
-## - download the corresponding TCGA data (expression, methylation, clinical patient & sample slide)
+## - download the corresponding TCGA data (expression, methylation,
+##   copy number clinical patient & sample slide)
 ## - upload the data to the database
 
 function usage
@@ -81,6 +82,9 @@ if [ -f upload_expression.txt ]; then
 fi
 if [ -f upload_methylation.txt ]; then
     rm upload_methylation.txt
+fi
+if [ -f upload_copyNumber.txt ]; then
+    rm upload_copyNumber.txt
 fi
 
 updateDate=`date '+%B %-d, %Y'`

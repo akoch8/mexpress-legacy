@@ -53,17 +53,18 @@ if [ -f upload_methylation.txt ] && grep -q ${tumorType} upload_methylation.txt;
 else
     echo "No new methylation data."
 fi
-if [ -f upload_cnv.txt ] && grep -q ${tumorType} upload_cnv.txt; then
-    dataTypes+=(cnv)
+if [ -f upload_copyNumber.txt ] && grep -q ${tumorType} upload_copyNumber.txt; then
+    dataTypes+=(copyNumber)
 else
-    echo "No new CNV data."
+    echo "No new copy number data."
 fi
 
 DATE=`date +%Y%m%d`
 HOUR=`date +%H%M%S`
 
-# Check if the different data types for the tumorType are already in the database.
-# If they are, dump them in an archive folder before uploading the new data.
+# Check if the different data types for the tumorType are already in the
+# database. If they are, dump them in an archive folder before uploading
+# the new data.
 for d in ${dataTypes[@]}; do
     if [ -f "${tumorType}"/load_"${d}"_"${tumorType}".sql ]; then
         if [ $(mysql -N -s -u ${user} -p${pass} -e "select count(*) from information_schema.tables where table_schema='${database}' and table_name='${d}_${tumorType}';") -eq 1 ]; then
@@ -78,8 +79,10 @@ for d in ${dataTypes[@]}; do
         echo "Could not find ${tumorType}/load_${d}_${tumorType}.sql, moving on."
     fi
 done
-# Loop through the data types a second time to update the data_information table (only relevant for expression, methylation and CNV data).
-# This way the tumor type will only show up on the website after these data have been uploaded to the database.
+# Loop through the data types a second time to update the
+# data_information table (only relevant for expression, methylation
+# and copy number data). This way the tumor type will only show up
+# on the website after these data have been uploaded to the database.
 for d in ${dataTypes[@]}; do
     if [ ${d} == "expression" ] || [ ${d} == "methylation" ] || [ ${d} == "cnv" ]; then
         if [ -f "${tumorType}"/load_"${d}"_"${tumorType}".sql ]; then
