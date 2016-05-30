@@ -187,12 +187,14 @@ for i in "${fileNames[@]}"; do
     done
 done
 wait
-if [ $downloadedFileCount -eq 0 ]; then
+if [ ${#fileNames[@]} -eq 0 ]; then
+    echo "No TCGA CNV found."
+elif [ $downloadedFileCount -eq 0 ]; then
     # No files were downloaded, meaning that all the data was already
     # available locally.
     echo "There is no new TCGA CNV data available."
 else
-    echo "New TCGA DNA methylation (HumanMethylation450) data found!"
+    echo "New TCGA CNV data found!"
     # Go through the extracted folders and:
     # 1. Remove the files we don't need.
     # 2. Download the appropriate mage-tab file (the mage-tab files

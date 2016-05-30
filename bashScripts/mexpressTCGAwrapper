@@ -5,6 +5,33 @@
 ## - download the corresponding TCGA data (expression, methylation, clinical patient & sample slide)
 ## - upload the data to the database
 
+function usage
+{
+    echo
+    echo "Usage: mexpressTCGAwrapper -a path/to/gene/annotation/file -n path/to/TCGA/gene/names/file"
+    echo
+}
+
+geneAnnotationFile=
+geneNamesFile=
+if [ "$1" == "" ]; then
+    usage
+    exit 1
+fi
+while [ "$1" != "" ]; do
+    case $1 in
+        -a | --geneAnnotationFile ) shift
+                                    geneAnnotationFile=$1
+                                    ;;
+        -n | --geneNamesFile )      shift
+                                    geneNamesFile=$1
+                                    ;;
+        * )                         usage
+                                    exit 1
+    esac
+    shift
+done
+
 # Read the different tumor types from the clinicalParameters.txt file.
 if [ -f clinicalParameters.txt ]; then
     tumorTypes=(`awk '{ if (NR!=1) { print $1 }}' clinicalParameters.txt`)
@@ -22,7 +49,7 @@ for t in ${tumorTypes[@]}; do
     echo "${t}"
     fullName=`awk -v tumor="$t" '{ if ($1 == tumor) { print $2 }}' clinicalParameters.txt`
     echo "$fullName"
-    ./downloadTCGAdata -t ${t} -f ${fullName}
+    ./downloadTCGAdata -t ${t} -f ${fullName} -a ${geneAnnotationFile} -n ${geneNamesFile}
     if [ "$?" != "0" ]; then
         echo
         echo "ERROR: could not download all the data for ${t}"

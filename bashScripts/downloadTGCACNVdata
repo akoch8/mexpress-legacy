@@ -50,12 +50,12 @@ if [ ${tumorType} == "" ]; then
     exit 1
 fi
 
-echo "checking CNV data..."
-# Download the CNV data from TCGA.
+echo "checking copy number data..."
+# Download the copy number data from TCGA.
 # We need two types of directories from TCGA:
-# 1. The first one (*Level_3*.tar.gz) contains the actual CNV data file
-#    (*.hg19.seq.txt) and a file that links the data file name to an
-#    identifier (MANIFEST.TXT),
+# 1. The first one (*Level_3*.tar.gz) contains the actual copy number
+#    data file (*.hg19.seq.txt) and a file that links the data file
+#    name to an identifier (MANIFEST.TXT),
 # 2. The second one (*mage-tab*.tar.gz) contains a file that links the
 #    identifier to the TCGA sample barcode (which is used as the sample
 #    name in MEXPRESS)
@@ -85,9 +85,9 @@ wait
 if [ $downloadedFileCount -eq 0 ]; then
     # No files were downloaded, meaning that all the data was already
     # available locally.
-    echo "There is no new TCGA CNV data available."
+    echo "There is no new TCGA copy number data available."
 else
-    echo "New TCGA DNA methylation (HumanMethylation450) data found!"
+    echo "New TCGA copy number data found!"
     # Go through the extracted folders and:
     # 1. Remove the files we don't need.
     # 2. Download the appropriate mage-tab file (the mage-tab files
@@ -128,6 +128,6 @@ else
     rm "${tumorType}"/*mage-tab*/*.idf.txt
     # Run the R script to process the CNV data.
     echo "processing..."
-    Rscript processTCGAcnv.R "${tumorType}" "${fullTumorTypeName}" "${geneAnnotationFile}" "${geneNamesFile}"
+    Rscript processTCGAcopyNumber.R "${tumorType}" "${fullTumorTypeName}" "${geneAnnotationFile}" "${geneNamesFile}"
 fi
 echo "Done..."
