@@ -140,11 +140,11 @@ cn[is.na(cn)] = "\\N"
 # Build the SQL query.
 tableName = paste("copyNumber_", source, sep="")
 sqlQuery = paste("DROP TABLE IF EXISTS ", tableName, ";\nCREATE TABLE ", tableName, "(gene_name VARCHAR(15),\n", sep="")
-dataInfoQuery = paste("DELETE FROM data_information WHERE source = '", source, "' AND experiment_type = 'copyNumber' AND technology = 'snp array';\n", sep="")
+dataInfoQuery = paste("DELETE FROM data_information WHERE source = '", source, "' AND experiment_type = 'copy number' AND technology = 'snp array';\n", sep="")
 for (t in 2:ncol(cn)){
 	sample = colnames(cn)[t]
 	sqlQuery = paste(sqlQuery, paste(sample, " DECIMAL(6,4),\n", sep=""))
-	dataInfoQuery = paste(dataInfoQuery, "INSERT INTO data_information (sample_name, data_table, source, full_source_name, experiment_type, technology) VALUES ('", sample, "', '", tableName, "', '", source, "', '", fullSourceName, "', 'copyNumber', 'snp array');\n", sep="")
+	dataInfoQuery = paste(dataInfoQuery, "INSERT INTO data_information (sample_name, data_table, source, full_source_name, experiment_type, technology) VALUES ('", sample, "', '", tableName, "', '", source, "', '", fullSourceName, "', 'copy number', 'snp array');\n", sep="")
 }
 
 # Remove the trailing comma from the sql query.
