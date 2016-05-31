@@ -10,7 +10,7 @@ $source = "'".array_shift($sourceArray)."'";
 $fullSourceName = "'".implode(" ", $sourceArray)."'";
 
 // find the samples for which both methylation and expression data is available (these will be found twice in the sample_name column of the data_information table)
-$query = "SELECT sample_name, count(sample_name) as c FROM data_information WHERE source = '".$source."' AND (experiment_type = 'methylation' OR experiment_type = 'expression') GROUP BY sample_name HAVING c = 2";
+$query = "SELECT sample_name, count(sample_name) as c FROM data_information WHERE source = ".$source." AND (experiment_type = 'expression' OR experiment_type = 'methylation') GROUP BY sample_name HAVING c = 2";
 
 $queryResult = mysqli_query($connection, $query);
 
