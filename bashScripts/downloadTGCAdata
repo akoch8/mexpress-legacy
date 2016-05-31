@@ -203,14 +203,12 @@ else
         fileName=${i}
         dirName=${fileName%.tar.gz}
         # Remove files we don't need.
-        rm "${tumorType}/${dirName}"/*.hg18.seg.txt
-        rm "${tumorType}/${dirName}"/*_hg18.seg.txt
-        rm "${tumorType}/${dirName}"/*_hg19.seg.txt
-        rm "${tumorType}/${dirName}"/README_DCC.txt
-        rm "${tumorType}/${dirName}"/MANIFEST.txt
-        if [ -f "${tumorType}/${dirName}"/CHANGES_DCC.txt ]; then
-            rm "${tumorType}/${dirName}"/CHANGES_DCC.txt
-        fi
+        rm -f "${tumorType}/${dirName}"/*.hg18.seg.txt
+        rm -f "${tumorType}/${dirName}"/*_hg18.seg.txt
+        rm -f "${tumorType}/${dirName}"/*_hg19.seg.txt
+        rm -f "${tumorType}/${dirName}"/README_DCC.txt
+        rm -f "${tumorType}/${dirName}"/MANIFEST.txt
+        rm -f "${tumorType}/${dirName}"/CHANGES_DCC.txt
         # Download the mage-tabe file.
         # Start by extracting the identifier that links the data folders
         # and mage-tab files from the data folder name.
@@ -228,11 +226,11 @@ else
     done
     wait
     # Remove the mage-tab files we don't need.
-    rm "${tumorType}"/*mage-tab*/CHANGES_DCC.txt
-    rm "${tumorType}"/*mage-tab*/DESCRIPTION.txt
-    rm "${tumorType}"/*mage-tab*/README_DCC.txt
-    rm "${tumorType}"/*mage-tab*/MANIFEST.txt
-    rm "${tumorType}"/*mage-tab*/*.idf.txt
+    rm -f "${tumorType}"/*mage-tab*/CHANGES_DCC.txt
+    rm -f "${tumorType}"/*mage-tab*/DESCRIPTION.txt
+    rm -f "${tumorType}"/*mage-tab*/README_DCC.txt
+    rm -f "${tumorType}"/*mage-tab*/MANIFEST.txt
+    rm -f "${tumorType}"/*mage-tab*/*.idf.txt
     # Run the R script to process the CNV data.
     Rscript processTCGAcopyNumber.R "${tumorType}" "${fullTumorTypeName}" "${geneAnnotationFile}" "${geneNamesFile}"
     echo "${tumorType}" >> upload_copyNumber.txt
