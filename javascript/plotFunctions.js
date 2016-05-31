@@ -204,7 +204,7 @@ function sortData(queryResult, sorter) {
     
 }
 
-function calculateStats(r, slideFieldsArray, sortedSamplesReduced, annotationArray, annotationData, expressionData, methylationData, probeLocations, slideData) {
+function calculateStats(r, slideFieldsArray, sortedSamplesReduced, annotationArray, annotationData, expressionData, methylationData, copyNumberData, probeLocations, slideData) {
     
     // create the stats object that will contain all the correlation and p values between the different data types
     var stats = {};
@@ -362,6 +362,50 @@ function calculateStats(r, slideFieldsArray, sortedSamplesReduced, annotationArr
                 stats[element][probeLocations[p]] = {r:answer['r'], rp:answer['p']};
             } else {
                 stats[element][probeLocations[p]] = {n:'failed'};
+            }
+        }
+        // copy number data
+        if (copyNumberData !== 'no_data') {
+            if (elementDataLevels === 2) {
+                // Wilcoxon rank-sum test
+                array1 = [];
+                array2 = [];
+                for (s in sortedSamplesReduced) {
+                    sample = sortedSamplesReduced[s];
+                    patient = sample.replace(/_\d\d$/, '');
+                    if (annotationData[patient] !== 'no_annotation') {
+                        if (element !== 'sample type') {
+                            annotationValue = annotationData[patient][element];
+                        } else {
+                            annotationValue = elementData[sample];
+                        }
+                        if (annotationValue === '1') {
+                            array1.push(copyNumberData[sample]);
+                        } else if (annotationValue === '0') {
+                            array2.push(copyNumberData[sample]);
+                        }
+                    }
+                }
+                answer = wilcoxonRankSumTest(array1, array2);
+                stats[element]['copy number'] = {p:answer};
+            } else if (elementDataLevels > 2 && element !== 'PAM50 subtype' && element !== 'eye_color' && element !== 'batch number') {
+                // correlation
+                array1 = [];
+                array2 = [];
+                for (s in sortedSamplesReduced) {
+                    sample = sortedSamplesReduced[s];
+                    array1.push(copyNumberData[sample]);
+                    if ($.inArray(element, annotationArray) !== -1) {
+                        patient = sample.replace(/_\d\d$/, '');
+                        array2.push(elementData[patient]);
+                    } else {
+                        array2.push(elementData[sample]);
+                    }
+                }
+                answer = pearsonCorrelation(array1, array2);
+                stats[element]['copy number'] = {r:answer['r'], rp:answer['p']};
+            } else {
+                stats[element]['copy number'] = {n:'failed'};
             }
         }
         // annotation data
@@ -579,7 +623,7 @@ function calculateStats(r, slideFieldsArray, sortedSamplesReduced, annotationArr
 
 }
 
-function drawLegend(r, svg, leftMargin, topMargin, geneColor, transcriptColor, cpgiColor, expressionFillColor, methylationFillColor, annotationColorEven, missingValueColor, genderAnnotation, femaleColorEven, maleColorEven, statsFont, source, pam50subtypeColors, sampleTypesPresent, sampleTypes, sampleTypeColors) {
+function drawLegend(r, svg, leftMargin, topMargin, geneColor, transcriptColor, cpgiColor, expressionFillColor, methylationFillColor, addCopyNumber, copyNumberFillColor, annotationColorEven, missingValueColor, genderAnnotation, femaleColorEven, maleColorEven, statsFont, source, pam50subtypeColors, sampleTypesPresent, sampleTypes, sampleTypeColors) {
 
     // draw the legend
     var xPos, yPos;
@@ -674,6 +718,19 @@ function drawLegend(r, svg, leftMargin, topMargin, geneColor, transcriptColor, c
         .attr('x', xPos + 8)
         .attr('y', yPos + 18*4)
         .text('missing data');
+    // copy number
+    if (addCopyNumber) {
+        svg.append('rect')
+            .attr('fill', copyNumberFillColor)
+            .attr('x', xPos)
+            .attr('y', yPos + 8 + 18*4)
+            .attr('width', 3)
+            .attr('height', 12);
+        svg.append('text')
+            .attr('x', xPos + 8)
+            .attr('y', yPos + 18*5)
+            .text('copy number');
+    }
     xPos += 120;
     // column 3: gender
     if (genderAnnotation) {
@@ -883,6 +940,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var expressionFillColor = '#ffd57a';
     var expressionLineColor = '#f59322';
     var expressionDashedLineColor = '#ffd161';
+    var copyNumberFillColor = '#ffbd7a';
+    var copyNumberLineColor = '#f55e22';
     var methylationFillColor = '#aad5fa';
     var methylationLineColor = '#4999de';
     var selectedMethFillColor = '#63aceb';
@@ -1066,6 +1125,20 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
     }
 
+    // get the maximal copy number value (will be used to determine the plot height)
+    if (queryResult['copyNumberData'] !== 'no_data') {
+        var maxCopyNumber = 0;
+        for (sample in queryResult['copyNumberData']) {
+            cn = queryResult['copyNumberData'][sample];
+            if (!isNaN(cn)) {
+                cn = Math.abs(+cn);
+                if (cn > maxCopyNumber) {
+                    maxCopyNumber = cn;
+                }
+            }
+        }
+    }
+
     /*****
 
         DATA PROCESSING
@@ -1083,6 +1156,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     // the methylation data for the different samples needs to be grouped per probe in order to draw a single line for each probe
     var methylationData = [];
     var expressionData = [];
+    var copyNumberData = [];
     var annotationData = [];
     var slideData = [];
     
@@ -1126,13 +1200,24 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             } else {
                 slideData[sample] = 'no_data';
             }
+            // expression data
             expression = queryResult['expressionData'][sample];
             expressionData[sample] = expression;
+            // copy number data
+            if (queryResult['copyNumberData'] == 'no_data') {
+                copyNumberData = 'no_data';
+            } else {
+                if (queryResult['copyNumberData'][sample]) {
+                    copyNumberData[sample] = queryResult['copyNumberData'][sample];
+                } else {
+                    copyNumberData[sample] = 'no_data';
+                }
+            }
         }
     }
     
     // create the stats object that will contain all the correlation and p values between the different data types
-    var stats = calculateStats(queryResult, slideFieldsArray, sortedSamplesReduced, annotationArray, annotationData, expressionData, methylationData, probeLocations, slideData);
+    var stats = calculateStats(queryResult, slideFieldsArray, sortedSamplesReduced, annotationArray, annotationData, expressionData, methylationData, copyNumberData, probeLocations, slideData);
 
     // get all the p values that will be shown in the plot
     // we need to adjust them for multiple hypothesis testing
@@ -1210,6 +1295,9 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         legendHeight = 148 + 18*sampleTypesPresent.length;
     }
     var topMargin = 10 + (maxExpression/20)*sampleRowHeight*3 + 10 + (annotationRowHeight + 1)*maxNumberOfAnnotationFields + 20 + legendHeight;
+    if (copyNumberData !== 'no_data') {
+        topMargin = 10 + (maxExpression/20)*sampleRowHeight*3 + (maxCopyNumber/10)*sampleRowHeight*3 + 10 + (annotationRowHeight + 1)*maxNumberOfAnnotationFields + 20 + legendHeight;
+    }
     var leftMargin = 170 + annotationWidth;
     var rightMargin = 110;
     var margin = {top: topMargin, left: leftMargin, bottom: 40, right: rightMargin};
@@ -1299,7 +1387,11 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     }
     
     // draw the legend
-    drawLegend(queryResult, svg, leftMargin, topMargin, geneColor, transcriptColor, cpgiColor, expressionFillColor, methylationFillColor, annotationColorEven, missingValueColor, genderAnnotation, femaleColorEven, maleColorEven, statsFont, source, pam50subtypeColors, sampleTypesPresent, sampleTypes, sampleTypeColors);
+    var addCopyNumber = true;
+    if (queryResult['copyNumberData'] === 'no_data') {
+        addCopyNumber = false;
+    }
+    drawLegend(queryResult, svg, leftMargin, topMargin, geneColor, transcriptColor, cpgiColor, expressionFillColor, methylationFillColor, addCopyNumber, copyNumberFillColor, annotationColorEven, missingValueColor, genderAnnotation, femaleColorEven, maleColorEven, statsFont, source, pam50subtypeColors, sampleTypesPresent, sampleTypes, sampleTypeColors);
 
     // draw the lines to indicate the probe locations (connect the methylation value barplots to the corresponding genomic location on the gene annotation)
     // by drawing these lines first we ensure that they will be in the background
