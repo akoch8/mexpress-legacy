@@ -40,6 +40,21 @@ dataFolders = grep("Level_3", allFiles, value=T)
 # Specify where to store the data.
 dataFile = paste(source, "/tcga_copyNumber_data_", source, ".txt", sep="")
 
+# Start building the SQL queries.
+tableName = paste("copyNumber_", source, sep="")
+sqlQuery = paste("DROP TABLE IF EXISTS ", tableName, ";\nCREATE TABLE ", tableName, "(gene_name VARCHAR(15),\n", sep="")
+dataInfoQuery = paste("DELETE FROM data_information WHERE source = '", source, "' AND experiment_type = 'copy number' AND technology = 'snp array';\n", sep="")
+
+# If it is not the first time that the copy number data is downloaded,
+# the data file should already exist and we can add the new data to it.
+existingData = file.exists(dataFile)
+if(existingData){
+	print("Found existing copy number data...")
+	existingCnData = fread(dataFile, data.table=F)
+	existingCnData[existingCnData == "\\N"] = NA
+	existingSamples = colnames(existingCnData)[-1]
+}
+
 # Go through the folders that contain the annotation data and extract the file names and
 # TCGA barcodes from the annotation files stored in these folders.
 allAnn = matrix(nrow=0, ncol=2)
@@ -56,6 +71,14 @@ for (t in 1:length(annFolders)){
 }
 allAnn = data.frame(allAnn, stringsAsFactors=F)
 allAnn = unique(allAnn)
+# Remove the sample we already downloaded previously.
+if (existingData){
+	test = allAnn$barcode
+	test = sub("-.{3}-.{4}-.{2}$", "", test)
+	test = sub("[ABCDEFGHIJKLMNOPQRSTUVWXYZ]$", "", test)
+	test = gsub("-", "_", test)
+	allAnn = allAnn[!test %in% existingSamples,]
+}
 
 # Go through the folders that contain the copy number data and extract
 # the values. The copy number data is mapped to chromosomal regions.
@@ -67,80 +90,98 @@ allAnn = unique(allAnn)
 geneAnn = fread(geneAnnFile, data.table=F)
 geneNames = fread(geneNamesFile, data.table=F, header=F)
 geneAnn = geneAnn[geneAnn$hgnc_symbol %in% geneNames[,1],]
-# Create a list of the gene annotations by splitting the genes up by chromosome.
-# This will speed up processing later on.
+# Create a list of the gene annotations by splitting the genes up by
+# chromosome. This will speed up processing later on.
 geneAnnList = list()
 uniqueChr = unique(geneAnn$chr)
 for (t in 1:length(uniqueChr)){
 	geneAnnList[[uniqueChr[t]]] = geneAnn[geneAnn$chr == uniqueChr[t],]
 }
 
-print("processing copy number data folders...")
 # Find all the files we need to process.
 cnDataFiles = vector()
 for (t in 1:length(dataFolders)){
 	dataFolder = paste(source, "/", dataFolders[t], sep="")
 	cnDataFiles = c(cnDataFiles, paste(dataFolder, "/", dir(dataFolder), sep=""))
 }
-print(paste("processing ", length(cnDataFiles), " copy number data files...", sep=""))
+cnDataFiles = unique(cnDataFiles)
+# Check for previously downloaded files.
+if (existingData){
+	downloadedFiles = gsub("^uvm.+/", "", cnDataFiles)
+	downloadedFiles = gsub(".hg19.seg.txt", "", downloadedFiles)
+	cnDataFiles = cnDataFiles[downloadedFiles %in% allAnn$sample]
+}
 # Get the copy number data.
-cnData = lapply(cnDataFiles, function(x, g){	
+cnData = lapply(cnDataFiles, function(x, g){
+	# Read the copy number data for a single sample.
 	segmentData = suppressWarnings(fread(x, data.table=F))
+	# Extract the chromosomes.
 	segChr = unique(segmentData$Chromosome)
-	sampleCnvData = list()
+	# Create a list that we will fill with the copy number data for
+	# each chromosome separately.
+	sampleCnData = list()
 	for (t in 1:length(segChr)){
+		# Get the gene annotation data for the chromosome.
 		chrAnn = g[[segChr[t]]]
 		chrSeg = segmentData[segmentData$Chromosome == segChr[t],]
+		# Calculate the copy number for each gene. If there are more
+		# than copy number values, we calculate the mean.
 		chrAnn$cn = apply(chrAnn, 1, function(xx, s){
 			segMean = s[s$Start <= xx[4] & s$End >= xx[5],]$Segment_Mean
 			return(ifelse(length(segMean) !=0, mean(segMean, na.rm=T), NA))
 		}, s=chrSeg)
-		sampleCnvData[[t]] = chrAnn[,c("hgnc_symbol", "cn")]
+		sampleCnData[[t]] = chrAnn[,c("hgnc_symbol", "cn")]
 	}
 	# Combine the CN data of the different chromosomes.
-	sampleCnvData = do.call("rbind", sampleCnvData)	
-	return(sampleCnvData)
+	sampleCnData = do.call("rbind", sampleCnData)	
+	return(sampleCnData)
 }, g=geneAnnList)
 # Combine all the data in a single table.
 cnDataTable = do.call("cbind", cnData)
 cnDataTable = cnDataTable[,c(1, grep("cn", colnames(cnDataTable)))]
 # Get the sample names.
 cnSamples = sapply(cnDataFiles, function(x, a){
-	data = fread(x, data.table=F, nrows=1)
-	barcode = a[a$sample == data$Sample[1],]$barcode
+	sample = sub("^uvm.+/", "", x)
+	sample = sub(".hg19.seg.txt$", "", sample)
+	barcode = a[a$sample == sample,]$barcode
 	return(barcode)
 }, a=allAnn)
 # Add the sample names to the CN data.
 colnames(cnDataTable)[2:ncol(cnDataTable)] = cnSamples
 # Remove rows with only NAs.
 cnDataTable = cnDataTable[rowSums(!is.na(cnDataTable[,-1])) != 0,]
+# Combine the new copy number data with the existing data.
+if (existingData){
+	cnDataTable = merge(existingCnData, cnDataTable, all=T)
+}
 
 # Aggregate the duplicate samples.
 colnames(cnDataTable) = sub("-.{3}-.{4}-.{2}$", "", colnames(cnDataTable))
 colnames(cnDataTable) = sub("[ABCDEFGHIJKLMNOPQRSTUVWXYZ]$", "", colnames(cnDataTable))
 duplicatedSamples = colnames(cnDataTable)[duplicated(colnames(cnDataTable))]
 duplicatedSamples = unique(duplicatedSamples)
-dup = cnDataTable[,colnames(cnDataTable) %in% duplicatedSamples]
-cn = cnDataTable[,!colnames(cnDataTable) %in% duplicatedSamples]
-dupResult = matrix(nrow=nrow(dup), ncol=0)
-for (t in 1:length(duplicatedSamples)){
-	sub = dup[,grep(duplicatedSamples[t], colnames(dup))]
-	dupResult = cbind(dupResult, rowMeans(sub))
+if (length(duplicatedSamples) > 0){
+	dup = cnDataTable[,colnames(cnDataTable) %in% duplicatedSamples]
+	cn = cnDataTable[,!colnames(cnDataTable) %in% duplicatedSamples]
+	dupResult = matrix(nrow=nrow(dup), ncol=0)
+	for (t in 1:length(duplicatedSamples)){
+		sub = dup[,grep(duplicatedSamples[t], colnames(dup))]
+		dupResult = cbind(dupResult, rowMeans(sub))
+	}
+	colnames(dupResult) = duplicatedSamples
+	dupResult = data.frame(dupResult, stringsAsFactors=F)
+	colnames(dupResult) = gsub("\\.", "-", colnames(dupResult))
+	cn = cbind(cn, dupResult)
+} else {
+	cn = cnDataTable
 }
-colnames(dupResult) = duplicatedSamples
-dupResult = data.frame(dupResult, stringsAsFactors=F)
-colnames(dupResult) = gsub("\\.", "-", colnames(dupResult))
-cn = cbind(cn, dupResult)
 colnames(cn) = gsub("-", "_", colnames(cn))
 
 # Replace the NA values with \N so that MySQL will recognize that
 # these values are missing instead of replacing them with 0.
 cn[is.na(cn)] = "\\N"
 
-# Build the SQL query.
-tableName = paste("copyNumber_", source, sep="")
-sqlQuery = paste("DROP TABLE IF EXISTS ", tableName, ";\nCREATE TABLE ", tableName, "(gene_name VARCHAR(15),\n", sep="")
-dataInfoQuery = paste("DELETE FROM data_information WHERE source = '", source, "' AND experiment_type = 'copy number' AND technology = 'snp array';\n", sep="")
+# Add the new samples to the SQL query.
 for (t in 2:ncol(cn)){
 	sample = colnames(cn)[t]
 	sqlQuery = paste(sqlQuery, paste(sample, " DECIMAL(6,4),\n", sep=""))
