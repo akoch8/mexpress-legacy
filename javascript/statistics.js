@@ -245,12 +245,12 @@ function wilcoxonRankSumTest(xInput, yInput) {
     var x = [];
     var y = [];
     for (c in xInput) {
-        if (xInput[c] && xInput[c] !== 'null') {
+        if (xInput[c] && xInput[c] !== 'null' && !isNaN(x[c])) {
             x.push(+xInput[c]);
         }
     }
     for (c in yInput) {
-        if (yInput[c] && yInput[c] !== 'null') {
+        if (yInput[c] && yInput[c] !== 'null' && !isNaN(y[c])) {
             y.push(+yInput[c]);
         }
     }
