@@ -268,7 +268,10 @@ if (file_exists($savedFileName)){
 
         $dataQueryResult = mysqli_query($connection, $dataQuery);
 
-        if ($dataQueryResult || mysqli_num_rows($dataQueryResult) == 0){
+        if (!$dataQueryResult || mysqli_num_rows($dataQueryResult) == 0){
+            # The copy number data is not vital to the plot like the
+            # expression or methylation data, so this script does not
+            # need to fail when something goes wrong with the query.
             $data["copyNumberData"] = "no_data";
         } else {
             $result = mysqli_fetch_assoc($dataQueryResult);
