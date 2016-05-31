@@ -164,6 +164,7 @@ if (file_exists($savedFileName)){
                   "probeAnnotation" => $probeAnnotation,
                   "methylationData" => array(),
                   "expressionData" => array(),
+                  "copyNumberData" => array(),
                   "annotation" => array(),
                   "slide" => array(),
                   "pam50" => array());
@@ -249,6 +250,34 @@ if (file_exists($savedFileName)){
             $data["expressionData"][$key] = round(log($value + 1), 2);
         }
         
+    }
+
+    ##
+    # copy number data query
+    ##
+
+    $query = "SELECT * FROM data_information WHERE source = $source AND full_source_name = $fullSourceName AND experiment_type = 'copy number' LIMIT 1";
+    $queryResult = mysqli_query($connection, $query);
+
+    if ($queryResult && mysqli_num_rows($queryResult) != 0){
+
+        $queryResultRow = mysqli_fetch_array($queryResult);
+        $tableName = $queryResultRow["data_table"];
+
+        $dataQuery = "SELECT * FROM $tableName WHERE gene_name = '$hgnc_symbol'";
+
+        $dataQueryResult = mysqli_query($connection, $dataQuery);
+
+        if ($dataQueryResult || mysqli_num_rows($dataQueryResult) == 0){
+            $data["copyNumberData"] = "no_data";
+        } else {
+            $result = mysqli_fetch_assoc($dataQueryResult);
+            $result = array_slice($result, 1);
+            foreach ($result as $key => $value){
+                $data["copyNumberData"][$key] = $value;
+            }
+        }
+
     }
     
     ##
