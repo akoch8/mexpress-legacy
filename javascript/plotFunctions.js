@@ -2375,12 +2375,9 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             }
         } else if (sorter === 'sample type') {
             stat = stats[sorter]['expressionData'];
+            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight;
             if (stat['n']) {
                 answer = stat['n'];
-                var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight;
-                if (queryResult['copyNumberData'].length !== 0) {
-                    yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight - 10 - (maxCopyNumber/2)*sampleRowHeight;
-                }
                 svg.append('text')
                     .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
                     .attr('y', yValue)
@@ -2402,10 +2399,6 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         p = 'p < 2.2e-16';
                     } else {
                         p = 'p = ' + p;
-                    }
-                    var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight;
-                    if (queryResult['copyNumberData'].length !== 0) {
-                        yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight - 10 - (maxCopyNumber/2)*sampleRowHeight;
                     }
                     svg.append('text')
                         .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
