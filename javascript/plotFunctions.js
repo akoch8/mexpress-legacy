@@ -1577,7 +1577,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             if (isNaN(copyNumber)) {
                 copyNumberLineData.push(null);
             } else {
-                copyNumberLineData.push(height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 10 - (copyNumber/2)*sampleRowHeight*3 - 20);
+                copyNumberLineData.push(height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 10 - (copyNumber/2)*sampleRowHeight*3 - 25);
             }
         }
         var areaAddedValue = 0; // this value is used to make the filled areas fit under the line
@@ -1591,7 +1591,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             .defined(function(d) { return d; })
             .x(function(d,i) { return x(i) + areaAddedValue; })
             .y1(function(d) { return d; })
-            .y0(height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 30);
+            .y0(height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 35);
         svg.append('path')
             .attr('d', copyNumberArea(copyNumberLineData))
             .attr('fill', copyNumberFillColor);
