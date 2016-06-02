@@ -1,3 +1,10 @@
+function isNumeric(n) {
+
+    // Check if an element is a number.
+    return !isNaN(parseFloat(n)) && isFinite(n);
+
+}
+
 function pAdjust(p, method) {
 
     // This function corrects p values using the user-specified method.
@@ -245,12 +252,12 @@ function wilcoxonRankSumTest(xInput, yInput) {
     var x = [];
     var y = [];
     for (c in xInput) {
-        if (xInput[c] && xInput[c] !== 'null' && !isNaN(x[c])) {
+        if (xInput[c] && xInput[c] !== 'null' && isNumeric(c)) {
             x.push(+xInput[c]);
         }
     }
     for (c in yInput) {
-        if (yInput[c] && yInput[c] !== 'null' && !isNaN(y[c])) {
+        if (yInput[c] && yInput[c] !== 'null' && isNumeric(c)) {
             y.push(+yInput[c]);
         }
     }
