@@ -244,6 +244,7 @@ if (file_exists($savedFileName)){
         }
         
         $result = mysqli_fetch_assoc($dataQueryResult);
+        # Remove the gene name from the result (first field).
         $result = array_slice($result, 1);
         #arsort($result); # sort the expression data (high to low)
         foreach ($result as $key => $value){
@@ -273,9 +274,21 @@ if (file_exists($savedFileName)){
         # need to fail when something goes wrong with the query.
         if (mysqli_num_rows($dataQueryResult) != 0){
             $result = mysqli_fetch_assoc($dataQueryResult);
+            # Remove the gene name from the result (first field).            
             $result = array_slice($result, 1);
+            $numFields = 0;
+            $fieldsNotNull = 0;
             foreach ($result as $key => $value){
+                $numFields++;
                 $data["copyNumberData"][$key] = $value;
+                if (!is_null($value)){
+                    $fieldsNotNull++;
+                }
+            }
+            # Check if there is copy number data for at least 25% of
+            # the samples. If there isn't, reset the result array.
+            if ($fieldsNotNull < $numFields/4){
+                $data["copyNumberData"] = array();
             }
         }
 
