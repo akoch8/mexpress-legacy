@@ -229,7 +229,7 @@ function calculateStats(r, slideFieldsArray, sortedSamplesReduced, annotationArr
     // fill the stats object with correlation and p values
     // this means going through the elements that are in the stats object
     // and for each one of these elements to go through the different data types that are available:
-    // expression, methylation, annotation, slide and sample type
+    // expression, methylation, copy number, annotation, slide and sample type
     var element, patient, s, code;
     for (element in stats) {
         var elementData = {};
@@ -1126,7 +1126,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     }
 
     // get the maximal copy number value (will be used to determine the plot height)
-    if (queryResult['copyNumberData'] !== 'no_data') {
+    if (queryResult['copyNumberData'].length !== 0) {
         var maxCopyNumber = 0;
         for (sample in queryResult['copyNumberData']) {
             cn = queryResult['copyNumberData'][sample];
@@ -1204,7 +1204,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             expression = queryResult['expressionData'][sample];
             expressionData[sample] = expression;
             // copy number data
-            if (queryResult['copyNumberData'] == 'no_data') {
+            if (queryResult['copyNumberData'].length == 0) {
                 copyNumberData = 'no_data';
             } else {
                 if (queryResult['copyNumberData'][sample]) {
@@ -1294,9 +1294,10 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     if (sampleTypesPresent.length > 7) {
         legendHeight = 148 + 18*sampleTypesPresent.length;
     }
+
     var topMargin = 10 + (maxExpression/20)*sampleRowHeight*3 + 10 + (annotationRowHeight + 1)*maxNumberOfAnnotationFields + 20 + legendHeight;
     if (copyNumberData !== 'no_data') {
-        topMargin = 10 + (maxExpression/20)*sampleRowHeight*3 + (maxCopyNumber/10)*sampleRowHeight*3 + 10 + (annotationRowHeight + 1)*maxNumberOfAnnotationFields + 20 + legendHeight;
+        topMargin = 10 + (maxExpression/20)*sampleRowHeight*3 + 10 + (maxCopyNumber/2)*sampleRowHeight*3 + 10 + (annotationRowHeight + 1)*maxNumberOfAnnotationFields + 20 + legendHeight;
     }
     var leftMargin = 170 + annotationWidth;
     var rightMargin = 110;
@@ -1387,9 +1388,10 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     }
     
     // draw the legend
-    var addCopyNumber = true;
-    if (queryResult['copyNumberData'] === 'no_data') {
-        addCopyNumber = false;
+    if (queryResult['copyNumberData'].length === 0) {
+        var addCopyNumber = false;
+    } else {
+        addCopyNumber = true;
     }
     drawLegend(queryResult, svg, leftMargin, topMargin, geneColor, transcriptColor, cpgiColor, expressionFillColor, methylationFillColor, addCopyNumber, copyNumberFillColor, annotationColorEven, missingValueColor, genderAnnotation, femaleColorEven, maleColorEven, statsFont, source, pam50subtypeColors, sampleTypesPresent, sampleTypes, sampleTypeColors);
 
@@ -1566,6 +1568,49 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         .attr('fill', scaleBarColor)
         .text(kbLength);
     
+    // draw the copy number data
+    if (copyNumberData !== 'no_data') {
+        var copyNumberLineData = [];
+        for (s in sortedSamplesReduced) {
+            sample = sortedSamplesReduced[s];
+            var copyNumber = copyNumberData[sample];
+            if (isNaN(copyNumber)) {
+                copyNumberLineData.push(null);
+            } else {
+                copyNumberLineData.push(height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 10 - (copyNumber/2)*sampleRowHeight*3 - 20);
+            }
+        }
+        var areaAddedValue = 0; // this value is used to make the filled areas fit under the line
+        // for some reason, the overlap is not 100% and depends on the number of samples
+        if (numberOfSamples < 100) {
+            areaAddedValue = 2;
+        } else if (numberOfSamples < 200) {
+            areaAddedValue = 1;
+        }
+        var copyNumberArea = d3.svg.area()
+            .defined(function(d) { return d; })
+            .x(function(d,i) { return x(i) + areaAddedValue; })
+            .y1(function(d) { return d; })
+            .y0(height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 30);
+        svg.append('path')
+            .attr('d', copyNumberArea(copyNumberLineData))
+            .attr('fill', copyNumberFillColor);
+        // draw a single line for all the copy number data
+        svg.append('path')
+            .attr('d', line(copyNumberLineData))
+            .style('stroke', copyNumberLineColor)
+            .attr('stroke-width', 1)
+            .attr('fill', 'none');
+        // add the copy number tag
+        svg.append('text')
+                .attr('x', -4)
+                .attr('y', height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight - 10)
+                .attr('text-anchor', 'end')
+                .attr('font-size', '12px')
+                .attr('fill', '#aaa')
+                .text('copy number');
+    }
+
     // draw the expression data
     var expressionLineData = [];
     for (s in sortedSamplesReduced) {
@@ -1625,7 +1670,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 }
                 
             });
-    
+
     // draw the methylation lines
     var probeNumber = 0;
     for (pos in methylationValuesByProbe) {
@@ -1851,8 +1896,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
     }
     
-    // add the correlation values
-    // loop through the probes and calculate the correlation value between the methylation and expression for each sample
+    // add the correlation values for the methylation data
     probeNr = 0;
     if (sorter === 'expressionData') {
         for (pos in probePositions) {
@@ -1933,6 +1977,83 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         }
     }
     
+    // add the correlation values for the copy number data
+    if (queryResult['copyNumberData'].length !== 0) {
+        var yValue = height - y(0) - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight - 10
+        if (sorter === 'expressionData') {
+            // use the stats object to find the correlation values
+            stat = stats[sorter]['copy number'];
+            if (stat['r']) {
+                r = stat['r'];
+                if (r !== 'failed') {
+                    p = parseFloat(stat['rp']);
+                    rString = formatCorrelation(r, p);
+                    correlationColor = '#aaa';
+                    correlationWeight = 'normal';
+                    if (p < 0.05) {
+                        correlationColor = '#666';
+                        correlationWeight = 'bold';
+                    }
+                    svg.append('text')
+                        .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
+                        .attr('y', yValue)
+                        .attr('font-size', statsTextSize)
+                        .attr('font-weight', correlationWeight)
+                        .attr('font-family', statsFont)
+                        .attr('fill', correlationColor)
+                        .text(rString);
+                }
+            }
+        } else {
+            stat = stats[sorter]['copy number'];
+            if (stat['p'] || stat['p'] === 0) {
+                p = stat['p'];
+                if (p !== 'failed') {
+                    significanceColor = '#aaa';
+                    significanceWeight = 'normal';
+                    pNum = parseFloat(p);
+                    if (pNum < 0.05) {
+                        significanceColor = '#666';
+                        significanceWeight = 'bold';
+                    }
+                    if (pNum < 10*Math.pow(10, -16)) {
+                        p = 'p < 2.2e-16';
+                    } else {
+                        p = 'p = ' + p;
+                    }
+                    svg.append('text')
+                        .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
+                        .attr('y', yValue)
+                        .attr('font-size', statsTextSize)
+                        .attr('font-weight', significanceWeight)
+                        .attr('font-family', statsFont)
+                        .attr('fill', significanceColor)
+                        .text(p);
+                }
+            } else if (stat['r']) {
+                r = stat['r'];
+                if (r !== 'failed') {
+                    p = parseFloat(stat['rp']);
+                    rString = formatCorrelation(r, p);
+                    correlationColor = '#aaa';
+                    correlationWeight = 'normal';
+                    if (p < 0.05) {
+                        correlationColor = '#666';
+                        correlationWeight = 'bold';
+                    }
+                    svg.append('text')
+                        .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
+                        .attr('y', yValue)
+                        .attr('font-size', statsTextSize)
+                        .attr('font-weight', correlationWeight)
+                        .attr('font-family', statsFont)
+                        .attr('fill', correlationColor)
+                        .text(rString);
+                }
+            }
+        }
+    }
+
     if (queryResult['annotation'] !== 'no_annotation') {
         // add the annotation data
         sampleNr = 0;
@@ -1978,10 +2099,14 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             annotationCount++;*/
             
             // draw a rectangle for the sample type
+            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount;
+            if (queryResult['copyNumberData'].length !== 0) {
+                yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount;
+            }
             svg.append('rect')
                 .attr('fill', sampleTypeColor)
                 .attr('x', x(sampleNr))
-                .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount)
+                .attr('y', yValue)
                 .attr('width', sampleColumnWidth)
                 .attr('height', annotationRowHeight);
 
@@ -1995,10 +2120,14 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     pam50subtype = 'no data';
                 }
                 var pam50color = pam50subtypeColors[pam50subtype];
+                var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount;
+                if (queryResult['copyNumberData'].length !== 0) {
+                    yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount;
+                }
                 svg.append('rect')
                     .attr('fill', pam50color)
                     .attr('x', x(sampleNr))
-                    .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount)
+                    .attr('y', yValue)
                     .attr('width', sampleColumnWidth)
                     .attr('height', annotationRowHeight);
             }
@@ -2047,49 +2176,66 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     }
                     var maxAnnotationValue = maxAnnotationValues[annotation];
                     annotationCount++;
+                    var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount;
+                    if (queryResult['copyNumberData'].length !== 0) {
+                        yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount;
+                    }
                     if (annotationValue === null) {
                         svg.append('rect')
                             .attr('fill', missingValueColor)
                             .attr('x', x(sampleNr))
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount)
+                            .attr('y', yValue)
                             .attr('width', sampleColumnWidth)
                             .attr('height', annotationRowHeight);
                     } else {
                         if (annotation === 'gender') {
                             rectHeight = annotationRowHeight;
-                            yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            if (queryResult['copyNumberData'].length !== 0) {
+                                yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            }
                             svg.append('rect')
                                 .attr('fill', genderColor)
                                 .attr('x', x(sampleNr))
-                                .attr('y', yPos)
+                                .attr('y', yValue)
                                 .attr('width', sampleColumnWidth)
                                 .attr('height', rectHeight);
                         } else if (annotation === 'eye_color') {
                             rectHeight = annotationRowHeight;
-                            yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            if (queryResult['copyNumberData'].length !== 0) {
+                                yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            }
                             svg.append('rect')
                                 .attr('fill', eyeColor)
                                 .attr('x', x(sampleNr))
-                                .attr('y', yPos)
+                                .attr('y', yValue)
                                 .attr('width', sampleColumnWidth)
                                 .attr('height', rectHeight);
                         } else {
                             rectHeight = (annotationRowHeight/maxAnnotationValue)*annotationValue;
-                            yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            if (queryResult['copyNumberData'].length !== 0) {
+                                yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount + (annotationRowHeight - rectHeight);
+                            }
                             svg.append('rect')
                                 .attr('fill', annotationColor)
                                 .attr('x', x(sampleNr))
-                                .attr('y', yPos)
+                                .attr('y', yValue)
                                 .attr('width', sampleColumnWidth)
                                 .attr('height', rectHeight);
                         }
                     }
                 }
             } else {
+                var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*(maxNumberOfAnnotationFields - maxNumberOfSlideFields);
+                if (queryResult['copyNumberData'].length !== 0) {
+                    yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*(maxNumberOfAnnotationFields - maxNumberOfSlideFields);
+                }
                 svg.append('rect')
                     .attr('fill', missingValueColor)
                     .attr('x', x(sampleNr))
-                    .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*(maxNumberOfAnnotationFields - maxNumberOfSlideFields))
+                    .attr('y', yValue)
                     .attr('width', sampleColumnWidth)
                     .attr('height', (annotationRowHeight + 1)*(maxNumberOfAnnotationFields - 1 - maxNumberOfSlideFields) - 1);
             }
@@ -2119,9 +2265,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     } else {
                         p = 'p = ' + p;
                     }
+                    var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                    if (queryResult['copyNumberData'].length !== 0) {
+                        yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                    }
                     svg.append('text')
                         .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                        .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
+                        .attr('y', yValue)
                         .attr('font-size', statsTextSize)
                         .attr('font-weight', significanceWeight)
                         .attr('font-family', statsFont)
@@ -2151,9 +2301,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         } else {
                             p = 'p = ' + p;
                         }
+                        var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                        if (queryResult['copyNumberData'].length !== 0) {
+                            yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                        }
                         svg.append('text')
                             .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
+                            .attr('y', yValue)
                             .attr('font-size', statsTextSize)
                             .attr('font-weight', significanceWeight)
                             .attr('font-family', statsFont)
@@ -2171,9 +2325,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             correlationColor = '#666';
                             correlationWeight = 'bold';
                         }
+                        var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                        if (queryResult['copyNumberData'].length !== 0) {
+                            yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                        }
                         svg.append('text')
                             .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
+                            .attr('y', yValue)
                             .attr('font-size', statsTextSize)
                             .attr('font-weight', correlationWeight)
                             .attr('font-family', statsFont)
@@ -2198,9 +2356,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                             correlationColor = '#666';
                             correlationWeight = 'bold';
                         }
+                        var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4;
+                        if (queryResult['copyNumberData'].length !== 0) {
+                            yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4;
+                        }
                         svg.append('text')
                             .attr('x', x(sampleNr) + 4*sampleColumnWidth)
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4)
+                            .attr('y', yValue)
                             .attr('class', fieldName)
                             .attr('font-size', statsTextSize)
                             .attr('font-weight', correlationWeight)
@@ -2215,9 +2377,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             stat = stats[sorter]['expressionData'];
             if (stat['n']) {
                 answer = stat['n'];
+                var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight;
+                if (queryResult['copyNumberData'].length !== 0) {
+                    yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight - 10 - (maxCopyNumber/2)*sampleRowHeight;
+                }
                 svg.append('text')
                     .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                    .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight)
+                    .attr('y', yValue)
                     .attr('font-size', statsTextSize)
                     .attr('font-family', statsFont)
                     .attr('fill', '#aaa')
@@ -2237,9 +2403,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     } else {
                         p = 'p = ' + p;
                     }
+                    var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight;
+                    if (queryResult['copyNumberData'].length !== 0) {
+                        yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight - 10 - (maxCopyNumber/2)*sampleRowHeight;
+                    }
                     svg.append('text')
                         .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                        .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight)
+                        .attr('y', yValue)
                         .attr('font-size', statsTextSize)
                         .attr('font-weight', significanceWeight)
                         .attr('font-family', statsFont)
@@ -2280,6 +2450,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             }
         } else {
             stat = stats[sorter]['expressionData'];
+            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight;
             if (stat['p'] || stat['p'] === 0) {
                 p = stat['p'];
                 if (p !== 'failed') {
@@ -2297,7 +2468,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     }
                     svg.append('text')
                         .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                        .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight)
+                        .attr('y', yValue)
                         .attr('font-size', statsTextSize)
                         .attr('font-weight', significanceWeight)
                         .attr('font-family', statsFont)
@@ -2317,7 +2488,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     }
                     svg.append('text')
                         .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                        .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight)
+                        .attr('y', yValue)
                         .attr('font-size', statsTextSize)
                         .attr('font-weight', correlationWeight)
                         .attr('font-family', statsFont)
@@ -2350,9 +2521,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             });
         annotationCount++;*/
 
+        var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount - 4;
+        if (queryResult['copyNumberData'].length !== 0) {
+            yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount - 4;
+        }
         svg.append('text')
             .attr('x', -4)
-            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount - 4)
+            .attr('y', yValue)
             .attr('class', 'clickable')
             .attr('font-size', '12px')
             .attr('fill', '#aaa')
@@ -2370,9 +2545,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             });
         if (source === 'BRCA breast invasive carcinoma') {
             annotationCount++;
+            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount;
+            if (queryResult['copyNumberData'].length !== 0) {
+                yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount;
+            }
             svg.append('text')
                 .attr('x', -4)
-                .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (sampleRowHeight + 1)*annotationCount)
+                .attr('y', yValue)
                 .attr('class', 'clickable')
                 .attr('font-size', '12px')
                 .attr('fill', '#aaa')
@@ -2393,9 +2572,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         for (annotation in maxAnnotationValues) {
             annotationCount++;
             annotation = annotation.replace(/_/g, ' ');
+            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+            if (queryResult['copyNumberData'].length !== 0) {
+                yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+            }
             svg.append('text')
                 .attr('x', -4)
-                .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
+                .attr('y', yValue)
                 .attr('class', 'clickable')
                 .attr('font-size', '12px')
                 .attr('fill', '#aaa')
@@ -2415,6 +2598,10 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             ann = annotation.replace(/ /g, '_');
             if (ann !== sorter && sorter !== 'expressionData') {
                 stat = stats[sorter][ann];
+                var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                if (queryResult['copyNumberData'].length !== 0) {
+                    yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4;
+                }
                 if (stat['p'] || stat['p'] === 0) {
                     p = stat['p'];
                     if (p !== 'failed') {
@@ -2432,7 +2619,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         }
                         svg.append('text')
                             .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
+                            .attr('y', yValue)
                             .attr('font-size', statsTextSize)
                             .attr('font-weight', significanceWeight)
                             .attr('font-family', statsFont)
@@ -2452,7 +2639,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         }
                         svg.append('text')
                             .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*annotationCount - 4)
+                            .attr('y', yValue)
                             .attr('font-size', statsTextSize)
                             .attr('font-weight', correlationWeight)
                             .attr('font-family', statsFont)
@@ -2497,11 +2684,14 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                     slideFieldValue = slideData[sample][slideField];
                     if (typeof slideData[sample][slideField] != 'undefined') {
                         rectHeight = (annotationRowHeight/100)*slideFieldValue;
-                        yPos = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount + (annotationRowHeight - rectHeight);
+                        var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount + (annotationRowHeight - rectHeight);
+                        if (queryResult['copyNumberData'].length !== 0) {
+                            yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount + (annotationRowHeight - rectHeight);
+                        }
                         svg.append('rect')
                             .attr('fill', slideFieldColor)
                             .attr('x', x(sampleNr))
-                            .attr('y', yPos)
+                            .attr('y', yValue)
                             .attr('width', sampleColumnWidth)
                             .attr('height', rectHeight)
                             .attr('class', slideField);
@@ -2511,10 +2701,14 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                 slideFieldCount = maxNumberOfAnnotationFields - maxNumberOfSlideFields; // needs to start above the already plotted annotation rows
                 for (field in slideFieldsArray) {
                     slideFieldCount++;
+                    var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 1;
+                    if (queryResult['copyNumberData'].length !== 0) {
+                        yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 1;
+                    }
                     svg.append('rect')
                         .attr('fill', missingValueColor)
                         .attr('x', x(sampleNr))
-                        .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 1)
+                        .attr('y', yValue)
                         .attr('width', sampleColumnWidth)
                         .attr('height', (annotationRowHeight + 1))
                         .attr('class', slideFieldsArray[field]);
@@ -2527,9 +2721,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
         for (field in slideFieldsArray) {
             fieldName = slideFieldsArray[field];
             annotation = fieldName.replace(/_/g, ' ');
+            var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4;
+            if (queryResult['copyNumberData'].length !== 0) {
+                yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4;
+            }
             svg.append('text')
                 .attr('x', -4)
-                .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4)
+                .attr('y', yValue)
                 .attr('class', fieldName + ' clickable')
                 .attr('font-size', '12px')
                 .attr('fill', '#aaa')
@@ -2553,6 +2751,10 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
             fieldName = slideFieldsArray[field];
             if (fieldName !== sorter && sorter !== 'expressionData') {
                 stat = stats[sorter][fieldName];
+                var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4;
+                if (queryResult['copyNumberData'].length !== 0) {
+                    yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4;
+                }
                 if (stat['r']) {
                     r = stat['r'];
                     if (r !== 'failed') {
@@ -2566,7 +2768,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         }
                         svg.append('text')
                             .attr('x', x(sampleNr) + 4*sampleColumnWidth)
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4)
+                            .attr('y', yValue)
                             .attr('class', fieldName)
                             .attr('font-size', statsTextSize)
                             .attr('font-weight', correlationWeight)
@@ -2591,7 +2793,7 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
                         }
                         svg.append('text')
                             .attr('x', x(numberOfSamples) + 4*sampleColumnWidth)
-                            .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*slideFieldCount - 4)
+                            .attr('y', yValue)
                             .attr('class', fieldName)
                             .attr('font-size', statsTextSize)
                             .attr('font-weight', significanceWeight)
@@ -2614,9 +2816,13 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     var sorterTextNode = document.getElementById(sorter).firstChild;
     sorterTextNode.nodeValue = '\u25ba ' + sorterText;
     // add a short description to the plot to make it clear what the statistics on the right side mean
+    var yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*maxNumberOfAnnotationFields - 14;
+    if (queryResult['copyNumberData'].length !== 0) {
+        yValue = height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (maxCopyNumber/2)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*maxNumberOfAnnotationFields - 14;
+    }
     svg.append('text')
         .attr('x', width + rightMargin - 12)
-        .attr('y', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*maxNumberOfAnnotationFields - 14)
+        .attr('y', yValue)
         .attr('font-size', statsTextSize)
         .attr('font-family', statsFont)
         .attr('text-anchor', 'end')
@@ -2625,8 +2831,8 @@ function createPlot(queryResult, gene, source, numberOfSamples, sorter) {
     svg.append('line')
         .attr('x1', width + rightMargin - 12)
         .attr('x2', width + rightMargin - 12 - 6.6*sorterText.length)
-        .attr('y1', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*maxNumberOfAnnotationFields - 10)
-        .attr('y2', height - y(0) - 10 - (maxExpression/20)*sampleRowHeight*3 - 10 - (annotationRowHeight + 1)*maxNumberOfAnnotationFields - 10)
+        .attr('y1',  yValue + 4)
+        .attr('y2', yValue + 4)
         .style('stroke', '#aaa')
         .attr('stroke-width', 1)
         .attr('shape-rendering', 'crispEdges');
