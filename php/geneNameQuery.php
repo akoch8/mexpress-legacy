@@ -362,8 +362,8 @@ if (file_exists($savedFileName) && filesize($savedFileName) != 0){
     
     $jsonData = json_encode($data);
     
-    // check if there's enough disk space to save the result (10 MB just to be safe)
-    if (disk_free_space(getcwd()."/savedQueries/") > 10000000){
+    // check if there's enough disk space to save the result (1 MB just to be safe)
+    if (disk_free_space(getcwd()) > 1000000){
         file_put_contents($savedFileName, $jsonData);
         chmod($savedFileName, 0766);
     }
