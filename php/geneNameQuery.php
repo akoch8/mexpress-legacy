@@ -14,7 +14,7 @@ $savedFileName = $gene.$sourceString;
 $savedFileName = str_replace(" ","",$savedFileName);
 $savedFileName = getcwd()."/savedQueries/".$savedFileName.".txt";
 
-if (file_exists($savedFileName)){
+if (file_exists($savedFileName) && filesize($savedFileName) != 0){
     
     $jsonData = file_get_contents($savedFileName);
     // zip the json object before sending it to the user
@@ -362,8 +362,11 @@ if (file_exists($savedFileName)){
     
     $jsonData = json_encode($data);
     
-    file_put_contents($savedFileName, $jsonData);
-    chmod($savedFileName, 0766);
+    // check if there's enough disk space to save the result (10 MB just to be safe)
+    if (disk_free_space(getcwd()."/savedQueries/") > 10000000){
+        file_put_contents($savedFileName, $jsonData);
+        chmod($savedFileName, 0766);
+    }
     
     // zip the json object before sending it to the user
     if (function_exists("ob_gzhandler")) ob_start("ob_gzhandler");
