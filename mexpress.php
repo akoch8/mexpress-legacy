@@ -120,7 +120,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                 Contact: <a href="mailto:a.koch@maastrichtuniversity.nl?Subject=MEXPRESS">a.koch@maastrichtuniversity.nl</a>
             </p>
             <p>
-                <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2016
+                <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2017
             </p>
         </footer>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
