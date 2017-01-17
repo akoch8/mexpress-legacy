@@ -44,6 +44,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                         <div class="separator"></div>
                         <a href="about" class="bannerLink">How to use MEXPRESS</a>
                         <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank" class="bannerLink">Publication</a>
+                        <a href="https://github.com/akoch8/mexpress" target="_blank" class="bannerLink">Code on GitHub</a>
                     </div>
                 </div>
             </header>
@@ -115,6 +116,9 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
             </p>
             <p>
                 Developed by Alexander Koch &#64; <a href="http://www.biobix.be" target="_blank">BIOBIX</a> &#8211; Ghent University, currently &#64; Maastricht University
+            </p>
+            <p>
+                The MEXPRESS code is available on <a href="https://github.com/akoch8/mexpress" target="_blank">GitHub</a>
             </p>
             <p>
                 Contact: <a href="mailto:a.koch@maastrichtuniversity.nl?Subject=MEXPRESS">a.koch@maastrichtuniversity.nl</a>
