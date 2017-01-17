@@ -59,12 +59,15 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                             <div class="sampleSelectionContainer">
                                 <strong>Select a <a href="https://tcga-data.nci.nih.gov/tcga/" target="_blank" title="This link will take you to the TCGA website.">TCGA</a> data source:</strong>
                                 <div class="update">
+                                    Latest update: 
                                     <?php
                                         $latest_update = file_get_contents("data/latest_update.txt");
                                         if ($latest_update != ""){
-                                            echo "Latest update: $latest_update";
+                                            echo $latest_update;
                                         }
                                     ?>
+                                    <br>
+                                    TCGA has migrated its data to GDC. We are working on a solution to access the new repository.
                                 </div>
                                 <div class="sampleSelectionList">
                                     <?php

@@ -114,6 +114,7 @@ a.bannerLink:visited, a.bannerLink:hover {
     font-style: italic;
     font-size: 11px;
     color: #aaa;
+    white-space: normal;
 }
 
 .sampleSelectionList {
