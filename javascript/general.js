@@ -1,13 +1,13 @@
 $(function() {
     
     // horizonral scrolling for the banner (used when the content is wider than the screen)
-    $(window).scroll(function() {
+    /*$(window).scroll(function() {
         
         $('header').css({
             'left': $(this).scrollLeft()
         });
         
-    });
+    });*/
     
     // focus on the text input field
     $('input[type=text]').focus();
