@@ -8,6 +8,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Visualization and integration of TCGA data.">
         <meta property="og:title" content="MEXPRESS"/>
         <meta property="og:url" content="http://mexpress.be"/>
