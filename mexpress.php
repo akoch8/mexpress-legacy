@@ -11,10 +11,10 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Visualization and integration of TCGA data.">
         <meta property="og:title" content="MEXPRESS"/>
-        <meta property="og:url" content="http://mexpress.be"/>
+        <meta property="og:url" content="https://mexpress.be/old/mexpress.php"/>
         <meta property="og:site_name" content="MEXPRESS"/>
         <meta property="og:type" content="website"/>
-        <meta property="og:image" content="http://mexpress.be/images/plot.png"/>
+        <meta property="og:image" content="http://mexpress.be/old/images/plot.png"/>
         <meta property="og:description" content="Visualization and integration of TCGA data."/>
         <title>MEXPRESS</title>
         <link rel="icon" type="image/png" href="images/m_icon.png">
@@ -129,7 +129,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                 Contact: <a href="mailto:a.koch@maastrichtuniversity.nl?Subject=MEXPRESS">a.koch@maastrichtuniversity.nl</a>
             </p>
             <p>
-                <a href="http://mexpress.be">MEXPRESS</a> &#8211; 2017
+                <a href="https://mexpress.be/old/mexpress.php">MEXPRESS</a> &#8211; 2017
             </p>
         </footer>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
