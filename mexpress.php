@@ -39,13 +39,14 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
         <div class="container">
             <header>
                 <div class="bannerContent">
-                    <a href="/"><img class="logo" src="images/m.png" /></a>
+                    <a href="https://mexpress.be/old/mexpress.php"><img class="logo" src="images/m.png" /></a>
                     <div class=bannerText>
-                        <a href="/" class="bannerTitle">MEXPRESS</a>
+                        <a href="https://mexpress.be/old/mexpress.php" class="bannerTitle">MEXPRESS</a>
                         <div class="separator"></div>
                         <a href="about" class="bannerLink">How to use MEXPRESS</a>
                         <a href="http://www.biomedcentral.com/1471-2164/16/636" target="_blank" class="bannerLink">Publication</a>
-                        <a href="https://github.com/akoch8/mexpress" target="_blank" class="bannerLink">Code on GitHub</a>
+                        <a href="https://github.com/akoch8/mexpress-legacy" target="_blank" class="bannerLink">Code on GitHub</a>
+                        <a href="https://mexpress.be" class="bannerLink">New version</a>
                     </div>
                 </div>
             </header>
@@ -122,7 +123,7 @@ $connection = mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
                 Developed by Alexander Koch &#64; <a href="http://www.biobix.be" target="_blank">BIOBIX</a> &#8211; Ghent University, currently &#64; Maastricht University
             </p>
             <p>
-                The MEXPRESS code is available on <a href="https://github.com/akoch8/mexpress" target="_blank">GitHub</a>
+                The MEXPRESS code is available on <a href="https://github.com/akoch8/mexpress-legacy" target="_blank">GitHub</a>
             </p>
             <p>
                 Contact: <a href="mailto:a.koch@maastrichtuniversity.nl?Subject=MEXPRESS">a.koch@maastrichtuniversity.nl</a>
